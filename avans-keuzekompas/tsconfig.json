@@ -19,9 +19,6 @@
       "path": "./libs/backend/domain"
     },
     {
-      "path": "./libs/backend/api"
-    },
-    {
       "path": "./libs/backend/presentation"
     },
     {
@@ -38,6 +35,9 @@
     },
     {
       "path": "./libs/shared/utils"
+    },
+    {
+      "path": "./libs/backend/application"
     }
   ]
 }
