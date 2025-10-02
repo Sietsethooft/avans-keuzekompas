@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "importHelpers": true,
+    "isolatedModules": true,
+    "lib": ["es2022"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "noEmitOnError": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2022",
+    "customConditions": ["@avans-keuzekompas/source"],
+    "baseUrl": ".",
+    "paths": {
+      "@avans-keuzekompas/backend": ["libs/backend/src/index.ts"],
+      "@avans-keuzekompas/backend/*": ["libs/backend/src/*"],
+      "@avans-keuzekompas/frontend": ["libs/frontend/src/index.ts"],
+      "@avans-keuzekompas/frontend/*": ["libs/frontend/src/*"],
+      "@avans-keuzekompas/shared": ["libs/shared/src/index.ts"],
+      "@avans-keuzekompas/shared/*": ["libs/shared/src/*"]
+    }
+  }
+}
