@@ -16,13 +16,28 @@
       "path": "./apps/backend"
     },
     {
-      "path": "./libs/frontend"
+      "path": "./libs/backend/domain"
     },
     {
-      "path": "./libs/backend"
+      "path": "./libs/backend/api"
     },
     {
-      "path": "./libs/shared"
+      "path": "./libs/backend/presentation"
+    },
+    {
+      "path": "./libs/backend/infrastructure"
+    },
+    {
+      "path": "./libs/frontend/ui"
+    },
+    {
+      "path": "./libs/frontend/features"
+    },
+    {
+      "path": "./libs/shared/types"
+    },
+    {
+      "path": "./libs/shared/utils"
     }
   ]
 }

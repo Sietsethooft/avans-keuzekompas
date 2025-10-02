@@ -63,7 +63,11 @@
   "workspaces": [
     "packages/*",
     "apps/*",
-    "libs/*"
+    "libs/*",
+    "backend/*",
+    "libs/backend/*",
+    "libs/frontend/*",
+    "libs/shared/*"
   ],
   "dependencies": {
     "@nestjs/common": "^11.0.0",

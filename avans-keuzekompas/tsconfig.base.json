@@ -19,12 +19,22 @@
     "customConditions": ["@avans-keuzekompas/source"],
     "baseUrl": ".",
     "paths": {
-      "@avans-keuzekompas/backend": ["libs/backend/src/index.ts"],
-      "@avans-keuzekompas/backend/*": ["libs/backend/src/*"],
-      "@avans-keuzekompas/frontend": ["libs/frontend/src/index.ts"],
-      "@avans-keuzekompas/frontend/*": ["libs/frontend/src/*"],
-      "@avans-keuzekompas/shared": ["libs/shared/src/index.ts"],
-      "@avans-keuzekompas/shared/*": ["libs/shared/src/*"]
+      "@avans-keuzekompas/domain": ["libs/backend/domain/src/index.ts"],
+      "@avans-keuzekompas/domain/*": ["libs/backend/domain/src/*"],
+      "@avans-keuzekompas/application": ["libs/backend/application/src/index.ts"],
+      "@avans-keuzekompas/application/*": ["libs/backend/application/src/*"],
+      "@avans-keuzekompas/presentation": ["libs/backend/presentation/src/index.ts"],
+      "@avans-keuzekompas/presentation/*": ["libs/backend/presentation/src/*"],
+      "@avans-keuzekompas/infrastructure": ["libs/backend/infrastructure/src/index.ts"],
+      "@avans-keuzekompas/infrastructure/*": ["libs/backend/infrastructure/src/*"],
+      "@avans-keuzekompas/features": ["libs/frontend/features/src/index.ts"],
+      "@avans-keuzekompas/features/*": ["libs/frontend/features/src/*"],
+      "@avans-keuzekompas/ui": ["libs/frontend/ui/src/index.ts"],
+      "@avans-keuzekompas/ui/*": ["libs/frontend/ui/src/*"],
+      "@avans-keuzekompas/types": ["libs/shared/types/src/index.ts"],
+      "@avans-keuzekompas/types/*": ["libs/shared/types/src/*"],
+      "@avans-keuzekompas/utils": ["libs/shared/utils/src/index.ts"],
+      "@avans-keuzekompas/utils/*": ["libs/shared/utils/src/*"]
     }
   }
 }
