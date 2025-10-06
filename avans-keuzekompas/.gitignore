@@ -48,3 +48,8 @@ Thumbs.db
 out
 
 test-output
+
+# Enviroments
+.env
+.env.local
+.env.*.local

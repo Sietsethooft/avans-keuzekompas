@@ -4,8 +4,8 @@
   "license": "MIT",
   "scripts": {
     "start": "nx run-many --target=serve --projects=api,web --parallel",
-    "start:backend": "nx serve backend",
-    "start:frontend": "nx serve frontend"
+    "start:backend": "nx serve api",
+    "start:frontend": "nx serve web"
   },
   "private": true,
   "devDependencies": {
@@ -71,6 +71,7 @@
   ],
   "dependencies": {
     "@nestjs/common": "^11.0.0",
+    "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.0",
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/mongoose": "^11.0.3",

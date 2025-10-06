@@ -32,3 +32,5 @@ export class Module extends Document {
 }
 
 export const ModuleSchema = SchemaFactory.createForClass(Module);
+
+ModuleSchema.index({ title: 1, location: 1 }, { unique: true });

@@ -21,7 +21,9 @@
     "customConditions": ["@avans-keuzekompas/source"],
     "baseUrl": ".",
     "paths": {
-      "@avans-keuzekompas/application": ["libs/backend/application/src/index.ts"],
+      "@avans-keuzekompas/application": [
+        "libs/backend/application/src/index.ts"
+      ],
       "@avans-keuzekompas/application/*": ["libs/backend/application/src/*"],
       "@avans-keuzekompas/domain": ["libs/backend/domain/src/index.ts"],
       "@avans-keuzekompas/domain/*": ["libs/backend/domain/src/*"],

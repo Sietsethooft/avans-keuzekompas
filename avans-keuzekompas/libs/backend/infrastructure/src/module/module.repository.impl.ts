@@ -1,11 +1,11 @@
-import { Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
-import { ModuleRepository } from '@libs/backend/domain/module.repository';
-import { Module } from '@libs/backend/domain/module.entity';
-import { ModuleDocument } from './module.schema.js';
+// import { Model } from 'mongoose';
+// import { InjectModel } from '@nestjs/mongoose';
+// import { Module } from './module.schema.js';
 
-export class MongooseModuleRepository implements ModuleRepository {
-  constructor(@InjectModel(ModuleDocument.name) private moduleModel: Model<ModuleDocument>) {}
+export class MongooseModuleRepository {
+  // constructor(
+  //   @InjectModel(Module.name) private readonly moduleModel: Model<Module>
+  // ) {}
 
-  // andere methodes...
+  // Hier komen je methodes...
 }
