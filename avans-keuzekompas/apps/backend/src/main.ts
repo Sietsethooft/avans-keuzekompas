@@ -10,7 +10,13 @@ import { SeedService } from './seed.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
+  // Enable CORS for all origins (for development)
+  app.enableCors({
+    origin: ['http://localhost:4200', 'http://localhost:3000'],
+    credentials: true,
+  });
+
   // Seed data
   const seedService = app.get(SeedService);
   await seedService.seedModules();
@@ -24,5 +30,4 @@ async function bootstrap() {
     `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`
   );
 }
-
 bootstrap();

@@ -4,9 +4,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { Module as ModuleModel, ModuleSchema } from '@avans-keuzekompas/infrastructure';
 import { User as UserModel, UserSchema } from '@avans-keuzekompas/infrastructure';
-import { MongooseModuleRepository } from '@avans-keuzekompas/infrastructure';
-import { MongooseUserRepository } from '@avans-keuzekompas/infrastructure';
+import { MongooseModuleRepository, MongooseUserRepository } from '@avans-keuzekompas/infrastructure';
 import { SeedService } from '../seed.service';
+import { AuthModule } from '@avans-keuzekompas/application';
+import { AuthController } from '@avans-keuzekompas/presentation';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -19,8 +20,14 @@ import { AppService } from './app.service';
       { name: ModuleModel.name, schema: ModuleSchema },
       { name: UserModel.name, schema: UserSchema },
     ]),
+    AuthModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, MongooseModuleRepository, MongooseUserRepository, SeedService],
+  controllers: [AppController, AuthController],
+  providers: [
+    AppService,
+    MongooseModuleRepository,
+    MongooseUserRepository,
+    SeedService,
+  ],
 })
 export class AppModule {}
