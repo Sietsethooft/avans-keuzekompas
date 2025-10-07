@@ -1,6 +1,29 @@
+body, html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 .main-container {
-    padding: 40px 40px 0px 40px;
-    max-width: 1200px;
-    margin: 0 auto;
-    margin-top: 70px;
+  padding: 40px 40px 0px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  margin-top: 70px;
+  flex: 1; /* Zorgt dat main de resterende ruimte vult */
+}
+
+.btn-primary {
+  background-color: #337ab7 !important;
+  border-color: #337ab7 !important;
+}
+
+.btn-primary:hover {
+  background-color: #2f6ea5 !important;
+  border-color: #2f6ea5 !important;
 }

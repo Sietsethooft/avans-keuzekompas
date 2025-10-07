@@ -19,34 +19,45 @@ const LoginPage: React.FC = () => {
     };
 
     return (
-        <div style={{ maxWidth: 400, margin: '2rem auto', padding: '2rem', border: '1px solid #ccc', borderRadius: 8 }}>
-            <h2>Login</h2>
-            <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: '1rem' }}>
-                    <label htmlFor="email">Email:</label>
-                    <input
-                        type="email"
-                        id="email"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
-                        style={{ width: '100%', padding: '0.5rem' }}
-                        required
-                    />
-                </div>
-                <div style={{ marginBottom: '1rem' }}>
-                    <label htmlFor="password">Password:</label>
-                    <input
-                        type="password"
-                        id="password"
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        style={{ width: '100%', padding: '0.5rem' }}
-                        required
-                    />
-                </div>
-                {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
-                <button type="submit" style={{ padding: '0.5rem 1rem' }}>Login</button>
-            </form>
+        <div className="container mt-5" style={{ width: 500 }}>
+            <div className="card p-4">
+                <h2 className="mb-4 text-center">Inloggen</h2>
+                <form onSubmit={handleSubmit}>
+                    <div className="mb-3">
+                        <label htmlFor="email" className="form-label">Email:</label>
+                        <input
+                            type="email"
+                            id="email"
+                            className="form-control"
+                            value={email}
+                            onChange={e => setEmail(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="password" className="form-label">Wachtwoord:</label>
+                        <input
+                            type="password"
+                            id="password"
+                            className="form-control"
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    {error && <div className="alert alert-danger mb-3">{error}</div>}
+                    <div className="d-flex justify-content-between">
+                        <button type="submit" className="btn btn-primary">Login</button>
+                        <button
+                            type="button"
+                            className="btn btn-outline-secondary"
+                            onClick={() => window.location.href = "/register"}
+                        >
+                            Registreren
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 };
