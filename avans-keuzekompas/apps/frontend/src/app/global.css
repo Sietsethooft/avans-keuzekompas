@@ -24,6 +24,10 @@ body {
 }
 
 .btn-primary:hover {
-  background-color: #2f6ea5 !important;
-  border-color: #2f6ea5 !important;
+  background-color: #29608f !important;
+  border-color: #29608f !important;
+}
+
+.custom-shadow {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
 }

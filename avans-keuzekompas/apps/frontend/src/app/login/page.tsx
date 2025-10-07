@@ -20,7 +20,7 @@ const LoginPage: React.FC = () => {
 
     return (
         <div className="container mt-5" style={{ width: 500 }}>
-            <div className="card p-4">
+            <div className="card p-4 custom-shadow">
                 <h2 className="mb-4 text-center">Inloggen</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
