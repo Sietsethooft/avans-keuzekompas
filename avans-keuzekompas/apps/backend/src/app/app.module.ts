@@ -14,7 +14,7 @@ import { AppService } from './app.service';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    MongooseModule.forRoot(process.env.MONGODB_URI || 'mongodb://localhost:27017/keuze-kompas'),
+    MongooseModule.forRoot(process.env.MONGODB_URL || 'mongodb://localhost:27017/keuze-kompas'),
     MongooseModule.forFeature([
       { name: ModuleModel.name, schema: ModuleSchema },
       { name: UserModel.name, schema: UserSchema },
