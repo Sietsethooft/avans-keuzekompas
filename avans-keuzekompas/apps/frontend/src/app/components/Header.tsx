@@ -28,7 +28,7 @@ export default function Header() {
             className={`mt-1 btn btn-outline-secondary d-flex align-items-center gap-2 px-3 py-1 ${styles.avansProfileBtn}`}
           >
             <span className={`bi bi-person-circle ${styles.profileIcon}`}></span>
-            <span className="fw-semibold">Sietse</span>
+            <span className="fw-semibold">Profiel</span>
           </Link>
         </div>
       </div>
