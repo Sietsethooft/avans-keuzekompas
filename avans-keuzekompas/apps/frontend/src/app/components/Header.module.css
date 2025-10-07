@@ -1,0 +1,23 @@
+.avansProfileBtn {
+  border-radius: 2rem;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.avansProfileBtn:hover,
+.avansProfileBtn:focus {
+  background: #c00 !important;
+  color: #fff !important;
+  border-color: #c00 !important;
+}
+.avansProfileBtn:hover .profileIcon,
+.avansProfileBtn:focus .profileIcon {
+  color: #fff !important;
+}
+
+.navLink {
+  font-size: 1.2rem !important;
+}
+
+.profileIcon {
+  font-size: 1.5rem;
+  vertical-align: middle;
+}
