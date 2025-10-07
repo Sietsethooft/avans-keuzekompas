@@ -14,7 +14,7 @@ export default function Header() {
         <nav className="ms-4 flex-grow-1">
           <ul className="navbar-nav flex-row gap-4">
             <li className="nav-item">
-              <Link href="/keuzemodules" className={`nav-link fw-semibold ${styles.navLink}`}>Keuzemodules</Link>
+              <Link href="/electives" className={`nav-link fw-semibold ${styles.navLink}`}>Keuzemodules</Link>
             </li>
             <li className="nav-item">
               <Link href="/about" className={`nav-link fw-semibold ${styles.navLink}`}>About</Link>
@@ -24,7 +24,7 @@ export default function Header() {
         <div className="d-flex align-items-center gap-3">
           {/* Profiel */}
           <Link
-            href="/profiel"
+            href="/profile"
             className={`mt-1 btn btn-outline-secondary d-flex align-items-center gap-2 px-3 py-1 ${styles.avansProfileBtn}`}
           >
             <span className={`bi bi-person-circle ${styles.profileIcon}`}></span>

@@ -8,7 +8,7 @@ export default function Footer() {
         <div>
           <span>© Avans Hogeschool, 2025</span>
           <nav className={styles.nav}>
-            <Link href="/keuzemodules" className={styles.link}>Keuzemodules</Link>
+            <Link href="/electives" className={styles.link}>Keuzemodules</Link>
             <Link href="/about" className={styles.link}>About</Link>
           </nav>
         </div>

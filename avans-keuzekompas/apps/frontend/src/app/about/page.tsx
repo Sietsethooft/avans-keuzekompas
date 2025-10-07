@@ -15,7 +15,7 @@ export default function AboutPage() {
       <section className="mt-4">
         <h2 className="text-2xl font-semibold mb-3">Gebruikte Packages & Technologieën</h2>
         <ul className="list-disc list-inside text-gray-700 space-y-1">
-          <li><strong>Frontend:</strong> Next.js (App Router) met TypeScript, TailwindCSS</li>
+          <li><strong>Frontend:</strong> Next.js (App Router) met TypeScript</li>
           <li><strong>Backend:</strong> NestJS met Mongoose (MongoDB)</li>
           <li><strong>Authenticatie:</strong> JWT (JSON Web Tokens)</li>
           <li><strong>Data fetching:</strong> Axios & React Query</li>
