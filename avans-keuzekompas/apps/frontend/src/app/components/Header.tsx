@@ -4,7 +4,7 @@ import styles from './Header.module.css';
 
 export default function Header() {
   return (
-    <header className="navbar navbar-expand-lg bg-white border-bottom px-4 py-2">
+    <header className="navbar navbar-expand-lg bg-white border-bottom px-4 py-2 position-fixed w-100 top-0">
       <div className="container-fluid d-flex align-items-center">
         {/* Logo */}
         <Link href="/" className="navbar-brand d-flex align-items-center">
