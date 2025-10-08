@@ -8,16 +8,15 @@
   color: #fff !important;
   border-color: #c00 !important;
 }
-.avansProfileBtn:hover .profileIcon,
-.avansProfileBtn:focus .profileIcon {
-  color: #fff !important;
-}
-
 .navLink {
   font-size: 1.2rem !important;
 }
-
 .profileIcon {
   font-size: 1.5rem;
   vertical-align: middle;
+}
+.logoutIcon {
+  font-size: 1.75rem;
+  -webkit-text-stroke: 0.5px currentColor;
+  line-height: 1;
 }
