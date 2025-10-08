@@ -10,6 +10,10 @@ body {
   flex-direction: column;
 }
 
+header {
+  z-index: 1000;
+}
+
 .main-container {
   padding: 40px 40px 0px 40px;
   max-width: 1200px;

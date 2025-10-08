@@ -7,13 +7,8 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() body: { email: string; password: string }) {
+    Logger.log(`recieved body: ${JSON.stringify(body)}`, 'AuthController');
     Logger.log('Login attempt:', body.email);
     return this.authService.loginWithEmailAndPassword(body.email, body.password);
   }
-
-  // @Get('test')
-  // test() {
-  //   Logger.log('Test endpoint aangeroepen!', 'AuthController');
-  //   return { message: 'Het werkt!' };
-  // }
 }
