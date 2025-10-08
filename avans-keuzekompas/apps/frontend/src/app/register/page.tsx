@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { JsonResponse } from '@avans-keuzekompas/utils';
 
 const avansEmailRegex = /^[a-zA-Z0-9._%+-]+@student\.avans\.nl$/;
 const studentNumberRegex = /^[0-9]{7,}$/;
@@ -70,8 +71,9 @@ const RegisterPage: React.FC = () => {
                 body: JSON.stringify({ firstName, lastName, email, studentNumber, password }),
             });
 
-            if (!res.ok) {
-                const data = await res.json();
+            const data: JsonResponse<null> = await res.json();
+
+            if (!res.ok || data.status !== 201) {
                 setError(data.message || 'Registratie mislukt.');
                 return;
             }
