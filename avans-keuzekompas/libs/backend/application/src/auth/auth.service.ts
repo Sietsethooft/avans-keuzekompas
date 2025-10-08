@@ -13,7 +13,7 @@ export class AuthService {
   async loginWithEmailAndPassword(email: string, password: string): Promise<AuthResult> {
     const user = await this.authRepository.findByEmail(email);
     if (!user || !(await this.authRepository.comparePassword(password, user.password))) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Ongeldige inloggegevens');
     }
     const access_token = this.jwtHelper.generateToken(user);
     return { access_token };

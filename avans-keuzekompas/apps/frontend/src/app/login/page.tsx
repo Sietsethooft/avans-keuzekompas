@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { JsonResponse } from '@avans-keuzekompas/utils';
 
 const avansEmailRegex = /^[a-zA-Z0-9._%+-]+@student\.avans\.nl$/;
 
@@ -38,21 +39,20 @@ const LoginPage: React.FC = () => {
 
         try {
             const url = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`;
-            console.log('Submitting to URL:', url);
             const res = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
             });
 
-            if (!res.ok) {
-                const data = await res.json();
+            const data: JsonResponse<{ access_token: string }> = await res.json();
+
+            if (!res.ok || data.status !== 200 || !data.data?.access_token) {
                 setError(data.message || 'Het opgegeven e-mailadres of wachtwoord is onjuist.');
                 return;
             }
 
-            const data = await res.json();
-            localStorage.setItem('token', data.access_token);
+            localStorage.setItem('token', data.data.access_token);
             router.push('/');
         } catch (err) {
             setError('Er ging iets mis met het inloggen. ' + err);
