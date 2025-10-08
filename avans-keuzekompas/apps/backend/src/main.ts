@@ -20,7 +20,7 @@ async function bootstrap() {
   // Seed data
   const seedService = app.get(SeedService);
   await seedService.seedModules();
-  await seedService.seedUsers();
+  // await seedService.seedUsers();
 
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);

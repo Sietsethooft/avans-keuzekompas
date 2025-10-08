@@ -8,13 +8,14 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() body: { email: string; password: string }) {
-    Logger.log(`recieved body: ${JSON.stringify(body)}`, 'AuthController');
     Logger.log('Login attempt:', body.email);
     try {
       const result = await this.authService.loginWithEmailAndPassword(body.email, body.password);
+      Logger.log('Login successful for:', result);
       return jsonResponse(200, 'Login succesvol', result);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Login mislukt';
+      Logger.log('Login failed:', errorMessage);
       return jsonResponse(500, errorMessage, null);
     }
   }
