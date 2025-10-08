@@ -1,9 +1,18 @@
-.avansProfileBtn {
+.avansProfileBtn,
+.avansLoginBtn {
   border-radius: 2rem;
   transition: background 0.2s, color 0.2s, border-color 0.2s;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 .avansProfileBtn:hover,
-.avansProfileBtn:focus {
+.avansProfileBtn:focus,
+.avansLoginBtn:hover,
+.avansLoginBtn:focus {
   background: #c00 !important;
   color: #fff !important;
   border-color: #c00 !important;

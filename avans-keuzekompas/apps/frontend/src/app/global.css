@@ -35,3 +35,9 @@ header {
 .custom-shadow {
   box-shadow: 0 4px 16px rgba(0,0,0,0.07);
 }
+
+.dropdown-item:active,
+.dropdown-item:focus {
+  background-color: #c00 !important;
+  color: #fff !important;
+}

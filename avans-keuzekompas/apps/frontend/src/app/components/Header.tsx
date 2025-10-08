@@ -2,19 +2,32 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './Header.module.css';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function Header() {
   const router = useRouter();
+  const pathname = usePathname();
+  const [isAuthed, setIsAuthed] = useState(false);
 
-  // Laad Bootstrap JS (dropdowns) alleen op de client
+  // Re-check token on route change (same-tab updates)
   useEffect(() => {
-    import('bootstrap/dist/js/bootstrap.bundle.min.js');
+    const token = localStorage.getItem('token');
+    setIsAuthed(!!token);
+  }, [pathname]);
+
+  // Cross-tab updates
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'token') setIsAuthed(!!e.newValue);
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    setIsAuthed(false);
     router.push('/login');
   };
 
@@ -36,29 +49,42 @@ export default function Header() {
             </li>
           </ul>
         </nav>
-        <div className="dropdown">
-          <button
-            className={`btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2 px-3 py-1 ${styles.avansProfileBtn}`}
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
+
+        {/* Rechts: login of profiel */}
+        {isAuthed ? (
+          <div className="dropdown">
+            <button
+              className={`btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2 px-3 py-1 ${styles.avansProfileBtn}`}
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <i className={`bi bi-person-circle ${styles.profileIcon}`}></i>
+              <span className="fw-semibold">Profiel</span>
+            </button>
+            <ul className="dropdown-menu dropdown-menu-end">
+              <li>
+                <Link href="/profile" className="dropdown-item">
+                  Profiel
+                </Link>
+              </li>
+              <li>
+                <button className="dropdown-item text-danger" onClick={handleLogout}>
+                  <i className="bi bi-box-arrow-right me-2"></i>Uitloggen
+                </button>
+              </li>
+            </ul>
+          </div>
+        ) : (
+          <div className={`d-flex align-items-center gap-3`}>
+          <Link
+            href="/login"
+            className={`btn btn-outline-secondary d-flex align-items-center gap-2 px-3 py-1 ${styles.avansLoginBtn}`}
           >
-            <i className={`bi bi-person-circle ${styles.profileIcon}`}></i>
-            <span className="fw-semibold">Profiel</span>
-          </button>
-          <ul className="dropdown-menu dropdown-menu-end">
-            <li>
-              <Link href="/profile" className="dropdown-item">
-                Profiel
-              </Link>
-            </li>
-            <li>
-              <button className="dropdown-item text-danger" onClick={handleLogout}>
-                <i className="bi bi-box-arrow-right me-2"></i>Uitloggen
-              </button>
-            </li>
-          </ul>
-        </div>
+            <span className="fw-semibold">Inloggen</span>
+          </Link>
+          </div>
+        )}
       </div>
     </header>
   );
