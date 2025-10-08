@@ -15,4 +15,9 @@ export class AuthRepository {
   async comparePassword(password: string, hash: string): Promise<boolean> {
     return bcrypt.compare(password, hash);
   }
+
+  async createUser(userData: Partial<User>): Promise<User> {
+    const newUser = new this.userModel(userData);
+    return await newUser.save();
+  }
 }

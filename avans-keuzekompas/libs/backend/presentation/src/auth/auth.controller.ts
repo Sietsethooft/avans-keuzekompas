@@ -19,19 +19,23 @@ export class AuthController {
     }
   }
 
-  // @Post('register')
-  // async register(@Body() body: { email: string; password: string; name: string }) {
-  //   Logger.log(`recieved body: ${JSON.stringify(body)}`, 'AuthController');
-  //   const emailError = validateEmail(body.email);
-  //   const passwordError = validatePassword(body.password);
-  //   if (emailError || passwordError) {
-  //     return jsonResponse(400, emailError || passwordError, null);
-  //   }
-  //   try {
-  //     const result = await this.authService.registerWithEmailAndPassword(body.email, body.password, body.name);
-  //     return jsonResponse(201, 'Registratie succesvol', result);
-  //   } catch (err: unknown) {
-  //     return jsonResponse(500, err.message || 'Registratie mislukt', null);
-  //   }
-  // }
+  @Post('register')
+  async register(
+    @Body() body: { 
+      firstName: string; 
+      lastName: string; 
+      email: string; 
+      studentNumber: string; 
+      password: string;
+    }
+  ) {
+    Logger.log(`recieved body: ${JSON.stringify(body)}`, 'AuthController');
+    try {
+      const result = await this.authService.register(body);
+      return jsonResponse(201, 'Registratie succesvol', result);
+    } catch (err: unknown) {
+      return jsonResponse(500, (err as Error).message || 'Registratie mislukt', null);
+    }
+  }
+
 }
