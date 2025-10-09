@@ -7,10 +7,29 @@ interface User {
   firstName: string;
   lastName: string;
   email: string;
-  studentNumber: number;
+  studentNumber: string | number;
   password: string;
   role: "student" | "admin";
   favorites: string[];
+}
+
+// Helper voor veilig decoden van JWT (base64url)
+function decodeJwt(token: string): any | null {
+  try {
+    const base64Url = token.split(".")[1];
+    if (!base64Url) return null;
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error("[ProfilePage] Fout bij decoden JWT:", e);
+    return null;
+  }
 }
 
 export default function ProfilePage() {
@@ -21,26 +40,40 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    console.log("[ProfilePage] useEffect start");
+
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    console.log("[ProfilePage] Token gevonden?", !!token);
+
     let userId: string | null = null;
+
     if (token) {
-      try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      userId = payload.id || payload.userId || null;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (e) {
-        userId = null;
+      const payload = decodeJwt(token);
+      console.log("[ProfilePage] JWT payload:", payload);
+      if (payload) {
+        userId =
+          payload.sub ||
+          payload.id ||
+          payload.userId ||
+          payload._id ||
+          localStorage.getItem("userId") ||
+          null;
       }
     }
 
+    console.log("[ProfilePage] Afgeleide userId:", userId);
+
     if (!token || !userId) {
+      console.warn("[ProfilePage] Geen geldige token of userId -> redirect /login");
       router.replace("/login");
       return;
     }
 
     const fetchUser = async () => {
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/user/${userId}`;
+      console.log("[ProfilePage] Fetch start:", url);
+
       try {
-        const url = `${process.env.NEXT_PUBLIC_API_URL}/api/user/${userId}`;
         const res = await fetch(url, {
           method: "GET",
           headers: {
@@ -49,19 +82,43 @@ export default function ProfilePage() {
           },
         });
 
-        const data = await res.json();
+        console.log("[ProfilePage] HTTP status:", res.status);
 
-        if (!res.ok || !data || data.status !== 200) {
-          setError(data.message || "Kon gebruikersgegevens niet ophalen.");
+        let data: any = null;
+        try {
+          data = await res.json();
+        } catch (jErr) {
+          console.error("[ProfilePage] Kon response niet parsen als JSON:", jErr);
+        }
+        console.log("[ProfilePage] Response JSON:", data);
+
+        if (!res.ok || !data || data.status !== 200 || !data.data) {
+          const msg = data?.message || "Kon gebruikersgegevens niet ophalen.";
+            console.error("[ProfilePage] Foutstatus:", msg);
+          setError(msg);
           setLoading(false);
           return;
         }
 
-        setUser(data.data); // Zorg dat je API { data: { ...user } } terugstuurt
-        setLoading(false);
+        const apiUser = data.data;
+        const mappedUser: User = {
+          id: apiUser._id || apiUser.id || apiUser.userId,
+          firstName: apiUser.firstName,
+          lastName: apiUser.lastName,
+          email: apiUser.email,
+          studentNumber: apiUser.studentNumber,
+          password: apiUser.password ?? "",
+          role: apiUser.role,
+          favorites: apiUser.favorites || [],
+        };
+
+        console.log("[ProfilePage] Mapped user object:", mappedUser);
+        setUser(mappedUser);
         setChecked(true);
+        setLoading(false);
+        console.log("[ProfilePage] User succesvol gezet");
       } catch (err) {
-        console.error("Fout bij ophalen user:", err);
+        console.error("[ProfilePage] Fetch exception:", err);
         setError("Er ging iets mis bij het laden van het profiel.");
         setLoading(false);
       }
@@ -89,17 +146,12 @@ export default function ProfilePage() {
   }
 
   if (!checked || !user) {
+    console.log("[ProfilePage] Niet klaar om te renderen. checked:", checked, "user:", user);
     return null;
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
-    router.replace("/login");
-  };
-
   return (
-    <div className="main-container">
+    <div className="">
       <div className="container">
         {/* Profielkaart */}
         <div className="card mb-4 custom-shadow border-0">
@@ -129,14 +181,6 @@ export default function ProfilePage() {
               </span>
             </div>
 
-            <div className="ms-auto mt-3 mt-md-0">
-              <button
-                className="btn btn-outline-danger d-flex align-items-center"
-                onClick={handleLogout}
-              >
-                <i className="bi bi-box-arrow-right me-2"></i> Uitloggen
-              </button>
-            </div>
           </div>
         </div>
 
@@ -147,7 +191,7 @@ export default function ProfilePage() {
               <i className="bi bi-star-fill text-warning me-2"></i>Favoriete modules
             </h5>
           </div>
-          <div className="card-body">
+            <div className="card-body">
             {user.favorites && user.favorites.length > 0 ? (
               <ul className="list-group list-group-flush">
                 {user.favorites.map((fav, index) => (
