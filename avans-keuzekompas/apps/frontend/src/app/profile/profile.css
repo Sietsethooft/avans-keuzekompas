@@ -1,0 +1,54 @@
+.profile-hero {
+  background: linear-gradient(135deg,#dc3545,#b3125c);
+}
+.avatar-ring {
+  width:68px;
+  height:68px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.15);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  backdrop-filter: blur(2px);
+  border:2px solid rgba(255,255,255,0.35);
+}
+.role-badge {
+  background:#f1f3f5;
+  color:#444;
+  font-weight:500;
+  letter-spacing:.5px;
+}
+.btn-danger-soft {
+  background: rgba(220,53,69,.12);
+  color:#dc3545;
+  border:1px solid rgba(220,53,69,.25);
+}
+.btn-danger-soft:hover {
+  background:#dc3545;
+  color:#fff;
+}
+.favorite-item {
+  border-radius:10px;
+  transition:background .15s;
+  padding: .65rem .75rem;
+  margin-bottom:.3rem;
+}
+.favorite-item:hover {
+  background:#fafafa;
+}
+.favorite-icon {
+  width:34px;
+  height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#fff3cd;
+  border-radius:8px;
+  font-size:.9rem;
+}
+.empty-state .empty-icon i {
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.15));
+}
+@media (min-width: 992px){
+  .position-lg-sticky { position: sticky; }
+}

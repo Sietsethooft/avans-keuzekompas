@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import "./profile.css";
 
 interface User {
   id: string;
@@ -13,7 +14,7 @@ interface User {
   favorites: string[];
 }
 
-// Helper voor veilig decoden van JWT (base64url)
+// Helper for decoding JWT
 function decodeJwt(token: string): any | null {
   try {
     const base64Url = token.split(".")[1];
@@ -40,10 +41,9 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log("[ProfilePage] useEffect start");
 
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    console.log("[ProfilePage] Token gevonden?", !!token);
+    console.log("[ProfilePage] Token found?", !!token);
 
     let userId: string | null = null;
 
@@ -61,10 +61,10 @@ export default function ProfilePage() {
       }
     }
 
-    console.log("[ProfilePage] Afgeleide userId:", userId);
+    console.log("[ProfilePage] Given userId:", userId);
 
     if (!token || !userId) {
-      console.warn("[ProfilePage] Geen geldige token of userId -> redirect /login");
+      console.warn("[ProfilePage] No valid token or userId -> redirect /login");
       router.replace("/login");
       return;
     }
@@ -88,13 +88,13 @@ export default function ProfilePage() {
         try {
           data = await res.json();
         } catch (jErr) {
-          console.error("[ProfilePage] Kon response niet parsen als JSON:", jErr);
+          console.error("[ProfilePage] Could not parse response as JSON:", jErr);
         }
         console.log("[ProfilePage] Response JSON:", data);
 
         if (!res.ok || !data || data.status !== 200 || !data.data) {
-          const msg = data?.message || "Kon gebruikersgegevens niet ophalen.";
-            console.error("[ProfilePage] Foutstatus:", msg);
+          const msg = data?.message || "Could not retrieve user data.";
+          console.error("[ProfilePage] Error status:", msg);
           setError(msg);
           setLoading(false);
           return;
@@ -116,10 +116,10 @@ export default function ProfilePage() {
         setUser(mappedUser);
         setChecked(true);
         setLoading(false);
-        console.log("[ProfilePage] User succesvol gezet");
+        console.log("[ProfilePage] User loaded in state.");
       } catch (err) {
         console.error("[ProfilePage] Fetch exception:", err);
-        setError("Er ging iets mis bij het laden van het profiel.");
+        setError("Something went wrong while loading the profile.");
         setLoading(false);
       }
     };
@@ -151,76 +151,114 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="">
-      <div className="container">
-        {/* Profielkaart */}
-        <div className="card mb-4 custom-shadow border-0">
-          <div className="card-body d-flex align-items-center flex-wrap">
-            <i
-              className="bi bi-person-circle text-danger me-4"
-              style={{ fontSize: "4rem" }}
-            ></i>
-            <div>
-              <h3 className="mb-0">
-                {user.firstName} {user.lastName}
-              </h3>
-              <p className="text-muted mb-1">
-                <i className="bi bi-envelope me-2"></i>
-                {user.email}
-              </p>
-              <p className="text-muted mb-2">
-                <i className="bi bi-card-text me-2"></i>
-                Studentnummer: {user.studentNumber}
-              </p>
-              <span
-                className={`badge ${
-                  user.role === "admin" ? "bg-danger" : "bg-secondary"
-                }`}
-              >
-                {user.role.toUpperCase()}
-              </span>
+    <div className="container py-4">
+      <div className="row g-4">
+        {/* LEFT */}
+        <div className="col-12 col-lg-5">
+          <div className="d-flex flex-column gap-4 position-lg-sticky" style={{ top: "1.5rem" }}>
+            {/* Profile card */}
+            <div className="card border-0 shadow-sm profile-card overflow-hidden">
+              <div className="profile-hero p-4 d-flex align-items-center">
+                <div className="avatar-ring me-3">
+                  <i className="bi bi-person-fill fs-2 text-white"></i>
+                </div>
+                <div className="text-white">
+                  <h4 className="mb-0 fw-semibold">
+                    {user.firstName} {user.lastName}
+                  </h4>
+                  <small className="opacity-75">{user.role.toUpperCase()}</small>
+                </div>
+              </div>
+              <div className="card-body pt-3">
+                <ul className="list-unstyled small mb-3">
+                  <li className="mb-2">
+                    <i className="bi bi-envelope text-danger me-2"></i>
+                    {user.email}
+                  </li>
+                  <li>
+                    <i className="bi bi-card-text text-danger me-2"></i>
+                    Studentnummer: {user.studentNumber}
+                  </li>
+                </ul>
+                <div className="d-flex flex-wrap gap-2">
+                  <span className="badge role-badge rounded-pill">
+                    {user.role === "admin" ? "ADMIN" : "STUDENT"}
+                  </span>
+                </div>
+              </div>
             </div>
 
+            {/* Account settings */}
+            <div className="card border-0 shadow-sm">
+              <div className="card-header bg-white border-0 pb-0">
+                <h6 className="mb-0 fw-semibold">
+                  <i className="bi bi-gear me-2 text-danger"></i>Accountinstellingen
+                </h6>
+              </div>
+              <div className="card-body">
+                <div className="d-grid gap-2">
+                  <button className="btn btn-danger-soft w-100">
+                    <i className="bi bi-lock me-2"></i> Wachtwoord wijzigen
+                  </button>
+                  <button className="btn btn-outline-secondary w-100">
+                    <i className="bi bi-pencil me-2"></i> Profiel bewerken
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Favorieten */}
-        <div className="card mb-4 custom-shadow border-0">
-          <div className="card-header bg-white border-0">
-            <h5 className="mb-0">
-              <i className="bi bi-star-fill text-warning me-2"></i>Favoriete modules
-            </h5>
-          </div>
+        {/* RIGHT */}
+        <div className="col-12 col-lg-7">
+          <div className="card border-0 shadow-sm h-100">
+            <div className="card-header bg-white border-0 d-flex align-items-center justify-content-between flex-wrap gap-2">
+              <h5 className="mb-0 fw-semibold">
+                <i className="bi bi-star-fill text-warning me-2"></i>Favoriete modules
+              </h5>
+              {user.favorites.length > 0 && (
+                <span className="badge bg-light text-dark">
+                  {user.favorites.length} geselecteerd
+                </span>
+              )}
+            </div>
             <div className="card-body">
-            {user.favorites && user.favorites.length > 0 ? (
-              <ul className="list-group list-group-flush">
-                {user.favorites.map((fav, index) => (
-                  <li key={index} className="list-group-item border-0 ps-0">
-                    <i className="bi bi-star text-warning me-2"></i>
-                    {fav}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-muted">Nog geen favorieten toegevoegd.</p>
-            )}
-          </div>
-        </div>
-
-        {/* Accountinstellingen */}
-        <div className="card custom-shadow border-0">
-          <div className="card-header bg-white border-0">
-            <h5 className="mb-0">
-              <i className="bi bi-gear me-2"></i>Accountinstellingen
-            </h5>
-          </div>
-          <div className="card-body">
-            <button className="btn btn-primary me-3">
-              <i className="bi bi-lock me-2"></i> Wachtwoord wijzigen
-            </button>
-            <button className="btn btn-outline-secondary">
-              <i className="bi bi-pencil me-2"></i> Profiel bewerken
-            </button>
+              {user.favorites.length > 0 ? (
+                <ul className="list-group list-group-flush favorites-list">
+                  {user.favorites.map((fav, i) => (
+                    <li
+                      key={i}
+                      className="list-group-item border-0 d-flex align-items-center px-0 favorite-item"
+                    >
+                      <span className="favorite-icon me-3">
+                        <i className="bi bi-star-fill text-warning"></i>
+                      </span>
+                      <span className="flex-grow-1">{fav}</span>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-light text-muted"
+                        title="Verwijderen (voorbeeld)"
+                      >
+                        <i className="bi bi-x-lg"></i>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="empty-state text-center py-5">
+                  <div className="empty-icon mb-3">
+                    <i className="bi bi-stars fs-1 text-warning"></i>
+                  </div>
+                  <h6 className="fw-semibold mb-1">Nog geen favorieten</h6>
+                  <p className="text-muted small mb-3">
+                    Voeg modules toe aan je favorieten om ze hier snel terug te vinden.
+                  </p>
+                  <button className="btn btn-outline-danger btn-sm">
+                    <i className="bi bi-search me-1"></i> Ontdek modules
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
