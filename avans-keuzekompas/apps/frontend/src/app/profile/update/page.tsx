@@ -216,8 +216,8 @@ const UpdateProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="container mt-5" style={{ maxWidth: 500 }}>
-      <div className="card p-4 custom-shadow">
+    <div >
+      <div className="card p-4 custom-shadow" style={{ width: "500px" }}>
         <h2 className="mb-4 text-center">Profiel bijwerken</h2>
         <form noValidate onSubmit={handleSubmit}>
           <div className="mb-3">
