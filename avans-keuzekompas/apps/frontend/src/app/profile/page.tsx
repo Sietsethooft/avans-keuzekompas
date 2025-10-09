@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { User } from '@avans-keuzekompas/types';
+import Swal from "sweetalert2";
 import "./profile.css";
 
 // Helper for decoding JWT
@@ -30,6 +31,59 @@ export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const handleDeleteAccount = async () => {
+    const result = await Swal.fire({
+      title: 'Weet je zeker dat je je account wilt verwijderen?',
+      text: 'Deze actie kan niet ongedaan worden gemaakt!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Ja, verwijderen',
+      cancelButtonText: 'Annuleren',
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+    });
+
+    if (!result.isConfirmed || !user) return;
+
+    try {
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/user/${user.id}`;
+      const token = localStorage.getItem('token');
+      const res = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.ok) {
+        await Swal.fire({
+          title: 'Account verwijderd',
+          text: 'Je account is succesvol verwijderd.',
+          icon: 'success',
+          confirmButtonColor: '#dc3545',
+        });
+        localStorage.removeItem('token');
+        router.replace('/login');
+      } else {
+        const data = await res.json();
+        await Swal.fire({
+          title: 'Verwijderen mislukt',
+          text: data?.message || 'Er ging iets mis bij het verwijderen.',
+          icon: 'error',
+          confirmButtonColor: '#dc3545',
+        });
+      }
+    } catch (err) {
+      await Swal.fire({
+        title: 'Fout',
+        text: 'Kon account niet verwijderen.',
+        icon: 'error',
+        confirmButtonColor: '#dc3545',
+      });
+    }
+  };
 
   useEffect(() => {
 
@@ -189,7 +243,7 @@ export default function ProfilePage() {
               </div>
               <div className="card-body">
                 <div className="d-grid gap-2">
-                  <button className="btn btn-danger-soft w-100">
+                  <button className="btn btn-danger-soft w-100" onClick={handleDeleteAccount}>
                     <i className="bi bi-trash3 me-2"></i> Account verwijderen
                   </button>
                   <button className="btn btn-outline-secondary w-100">
