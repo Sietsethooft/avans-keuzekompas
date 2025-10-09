@@ -1,6 +1,7 @@
-import { Controller, Get, Logger, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Logger, Param, Delete, UseGuards } from '@nestjs/common';
 import { UserService } from '@avans-keuzekompas/application';
 import { jsonResponse } from '@avans-keuzekompas/utils';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
 
 @Controller('user')
 export class UserController {
@@ -20,6 +21,7 @@ export class UserController {
       }
     }
 
+    @UseGuards(JwtAuthGuard)
     @Delete(':id')
     async deleteUser(@Param('id') id: string) {
       Logger.log('Delete user attempt:', id);

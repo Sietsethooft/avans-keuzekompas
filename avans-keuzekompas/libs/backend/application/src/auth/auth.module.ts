@@ -6,10 +6,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from '@avans-keuzekompas/infrastructure';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from '@avans-keuzekompas/infrastructure';
 
 @Module({
   imports: [
     ConfigModule,
+    PassportModule,
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     JwtModule.registerAsync({
       inject: [ConfigService],
@@ -23,6 +26,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     AuthService,
     AuthRepository,
     JwtHelper,
+    JwtStrategy,
   ],
   exports: [AuthService],
 })
