@@ -165,7 +165,7 @@ export default function ProfilePage() {
         console.log("[ProfilePage] User loaded in state.");
       } catch (err) {
         console.error("[ProfilePage] Fetch exception:", err);
-        setError("Something went wrong while loading the profile.");
+        setError("Iets is misgegaan tijdens je profiel laden.");
         setLoading(false);
       }
     };
@@ -246,7 +246,10 @@ export default function ProfilePage() {
                   <button className="btn btn-danger-soft w-100" onClick={handleDeleteAccount}>
                     <i className="bi bi-trash3 me-2"></i> Account verwijderen
                   </button>
-                  <button className="btn btn-outline-secondary w-100">
+                  <button
+                    className="btn btn-outline-secondary w-100"
+                    onClick={() => router.push("/profile/update")}
+                  >
                     <i className="bi bi-pencil me-2"></i> Profiel bewerken
                   </button>
                 </div>
