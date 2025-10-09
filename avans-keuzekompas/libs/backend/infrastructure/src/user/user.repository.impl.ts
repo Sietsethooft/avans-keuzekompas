@@ -10,4 +10,8 @@ export class MongooseUserRepository {
   async findById(id: string): Promise<User | null> {
     return this.userModel.findById(id).exec();
   }
+
+  async deleteById(id: string): Promise<void> {
+    await this.userModel.findByIdAndDelete(id).exec();
+  }
 }
