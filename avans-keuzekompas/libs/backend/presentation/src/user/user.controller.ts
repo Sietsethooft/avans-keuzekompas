@@ -1,4 +1,4 @@
-import { Controller, Get, Logger, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Logger, Param, Delete, UseGuards, Put, Body } from '@nestjs/common';
 import { UserService } from '@avans-keuzekompas/application';
 import { jsonResponse } from '@avans-keuzekompas/utils';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
@@ -36,4 +36,19 @@ export class UserController {
         return jsonResponse(500, errorMessage, null);
       }
     }
+
+    @UseGuards(JwtAuthGuard, OwnerOrAdminGuard)
+    @Put(':id')
+    async updateUser(@Param('id') id: string, @Body() update: Partial<{ firstName: string; lastName: string; email: string; studentNumber: string; favorites: string[] }>) {
+      Logger.log('Update user attempt:', id, update);
+      try {
+        const updatedUser = await this.userService.updateUserById(id, update);
+        Logger.log('Update user successful for:', updatedUser);
+        return jsonResponse(200, 'User updated successfully', updatedUser);
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to update user';
+        Logger.log('Update user failed:', errorMessage);
+        return jsonResponse(500, errorMessage, null);
+      }
+    }    
 }

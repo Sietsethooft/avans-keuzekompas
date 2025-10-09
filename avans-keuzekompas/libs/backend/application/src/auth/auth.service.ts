@@ -32,7 +32,7 @@ export class AuthService {
     firstName: string;
     lastName: string;
     email: string;
-    studentNumber: number;
+    studentNumber: string;
     role: 'student' | 'admin';
   }> {
     const existingUser = await this.authRepository.findByEmail(body.email);
@@ -46,7 +46,7 @@ export class AuthService {
       firstName: body.firstName,
       lastName: body.lastName,
       email: body.email,
-      studentNumber: Number(body.studentNumber),
+      studentNumber: body.studentNumber,
       password: hashedPassword,
       role: 'student',
       favorites: [],

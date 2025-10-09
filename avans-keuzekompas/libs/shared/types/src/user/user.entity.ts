@@ -3,7 +3,7 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
-  studentNumber: number;
+  studentNumber: string;
   password: string;
   role: 'student' | 'admin';
   favorites: string[]; // module ids

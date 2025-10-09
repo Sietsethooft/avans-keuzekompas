@@ -13,4 +13,14 @@ export class UserService {
   async deleteUserById(id: string): Promise<void> {
     await this.userRepository.deleteById(id);
   }
+
+  async updateUserById(id: string, update: Partial<{ firstName: string; lastName: string; email: string; studentNumber: string; favorites: string[] }>): Promise<User | null> {
+    if (update.email) {
+      const existing = await this.userRepository.findByEmail(update.email);
+      if (existing && existing.id !== id) {
+        throw new Error('Email already in use');
+      }
+    }
+    return this.userRepository.updateById(id, update);
+  }
 }
