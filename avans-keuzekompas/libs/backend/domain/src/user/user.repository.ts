@@ -1,5 +1,5 @@
-// import { User } from './user.entity.js';
+import { User } from './user.entity.js';
 
-// export interface UserRepository {
-//   findById(id: string): Promise<User | null>;
-// }
+export abstract class UserRepository {
+  abstract findById(id: string): Promise<User | null>;
+}

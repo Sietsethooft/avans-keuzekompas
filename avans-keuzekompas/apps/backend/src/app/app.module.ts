@@ -8,6 +8,8 @@ import { MongooseModuleRepository, MongooseUserRepository } from '@avans-keuzeko
 import { SeedService } from '../seed.service';
 import { AuthModule } from '@avans-keuzekompas/application';
 import { AuthController } from '@avans-keuzekompas/presentation';
+import { UserModule } from '@avans-keuzekompas/application';
+import { UserController } from '@avans-keuzekompas/presentation';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -24,8 +26,9 @@ import { AppService } from './app.service';
       { name: UserModel.name, schema: UserSchema },
     ]),
     AuthModule,
+    UserModule,
   ],
-  controllers: [AppController, AuthController],
+  controllers: [AppController, AuthController, UserController],
   providers: [
     AppService,
     MongooseModuleRepository,

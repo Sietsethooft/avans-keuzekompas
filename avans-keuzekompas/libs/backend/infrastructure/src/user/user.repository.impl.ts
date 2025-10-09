@@ -1,11 +1,13 @@
-// import { Model } from 'mongoose';
-// import { InjectModel } from '@nestjs/mongoose';
-// import { User } from './user.schema.js';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { User } from './user.schema.js';
 
 export class MongooseUserRepository {
-  // constructor(
-  //   @InjectModel(User.name) private readonly userModel: Model<User>
-  // ) {}
+  constructor(
+    @InjectModel(User.name) private readonly userModel: Model<User>
+  ) {}
 
-  // andere methodes...
+  async findById(id: string): Promise<User | null> {
+    return this.userModel.findById(id).exec();
+  }
 }
