@@ -1,18 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import type { User } from '@avans-keuzekompas/types';
 import "./profile.css";
-
-interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  studentNumber: string | number;
-  password: string;
-  role: "student" | "admin";
-  favorites: string[];
-}
 
 // Helper for decoding JWT
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
