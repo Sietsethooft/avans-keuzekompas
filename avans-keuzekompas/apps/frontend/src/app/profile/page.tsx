@@ -200,7 +200,7 @@ export default function ProfilePage() {
               <div className="card-body">
                 <div className="d-grid gap-2">
                   <button className="btn btn-danger-soft w-100">
-                    <i className="bi bi-lock me-2"></i> Wachtwoord wijzigen
+                    <i className="bi bi-trash3 me-2"></i> Account verwijderen
                   </button>
                   <button className="btn btn-outline-secondary w-100">
                     <i className="bi bi-pencil me-2"></i> Profiel bewerken
@@ -255,7 +255,10 @@ export default function ProfilePage() {
                   <p className="text-muted small mb-3">
                     Voeg modules toe aan je favorieten om ze hier snel terug te vinden.
                   </p>
-                  <button className="btn btn-outline-danger btn-sm">
+                  <button
+                    className="btn btn-outline-danger btn-sm"
+                    onClick={() => router.push("/electives")}
+                  >
                     <i className="bi bi-search me-1"></i> Ontdek modules
                   </button>
                 </div>
