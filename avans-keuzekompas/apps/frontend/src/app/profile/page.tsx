@@ -15,6 +15,7 @@ interface User {
 }
 
 // Helper for decoding JWT
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function decodeJwt(token: string): any | null {
   try {
     const base64Url = token.split(".")[1];
@@ -84,6 +85,7 @@ export default function ProfilePage() {
 
         console.log("[ProfilePage] HTTP status:", res.status);
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let data: any = null;
         try {
           data = await res.json();
