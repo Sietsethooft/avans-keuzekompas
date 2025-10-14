@@ -3,19 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './electives.module.css';
-
-type ModuleItem = {
-  id: string;
-  title: string;
-  description?: string | null;
-  location: string;
-  period: 'P1' | 'P2' | 'P3' | 'P4';
-  studentCredits: number;
-  language: 'NL' | 'EN';
-  level?: string | null;
-  duration?: string | null;
-  offeredBy?: string | null;
-};
+import type { Module as ModuleItem } from "@avans-keuzekompas/types";
 
 export default function ElectivesPage() {
   const router = useRouter();
