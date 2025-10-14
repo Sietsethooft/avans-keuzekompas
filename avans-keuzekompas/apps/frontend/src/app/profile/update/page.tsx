@@ -111,8 +111,8 @@ const UpdateProfilePage: React.FC = () => {
   }, [router]);
 
   // Validatie functies
-  const validateFirstName = (v: string) => !v ? "Graag een voornaam invullen" : "";
-  const validateLastName = (v: string) => !v ? "Graag een achternaam invullen" : "";
+  const validateFirstName = (v: string) => (!v ? "Graag een voornaam invullen" : "");
+  const validateLastName = (v: string) => (!v ? "Graag een achternaam invullen" : "");
   const validateEmail = (v: string) => {
     if (!v) return "Graag een geldige e-mail invullen";
     if (!avansEmailRegex.test(v)) return "Deze e-mail is ongeldig, volg dit format: naam@student.avans.nl";
@@ -130,6 +130,7 @@ const UpdateProfilePage: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    if (error) setError(""); // reset globale fout bij wijzigingen
   };
 
   const handleBlur = (field: keyof typeof touched) => {
@@ -152,10 +153,10 @@ const UpdateProfilePage: React.FC = () => {
       validateEmail(form.email),
       validateStudentNumber(form.studentNumber),
       validatePassword(form.password),
-    ].filter(Boolean);
+    ].filter(Boolean) as string[];
 
     if (errors.length > 0) {
-      setError(errors[0]);
+      setError(errors[0]); // toon validatie-bericht onder de velden
       return;
     }
 
@@ -192,7 +193,7 @@ const UpdateProfilePage: React.FC = () => {
         confirmButtonColor: "#dc3545",
       });
       router.replace("/profile");
-    } catch (err) {
+    } catch {
       setError("Er ging iets mis met bijwerken.");
     }
   };
@@ -207,16 +208,8 @@ const UpdateProfilePage: React.FC = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="main-container text-center text-danger">
-        <h4>{error}</h4>
-      </div>
-    );
-  }
-
   return (
-    <div >
+    <div>
       <div className="card p-4 custom-shadow" style={{ width: "500px" }}>
         <h2 className="mb-4 text-center">Profiel bijwerken</h2>
         <form noValidate onSubmit={handleSubmit}>
@@ -300,7 +293,9 @@ const UpdateProfilePage: React.FC = () => {
               <div className="invalid-feedback">{validatePassword(form.password)}</div>
             )}
           </div>
+
           {error && <div className="alert alert-danger mb-3">{error}</div>}
+
           <div className="d-flex justify-content-between">
             <button type="submit" className="btn btn-primary">Opslaan</button>
             <button
