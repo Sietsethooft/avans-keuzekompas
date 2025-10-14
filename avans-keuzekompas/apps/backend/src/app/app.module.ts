@@ -6,10 +6,15 @@ import { Module as ModuleModel, ModuleSchema } from '@avans-keuzekompas/infrastr
 import { User as UserModel, UserSchema } from '@avans-keuzekompas/infrastructure';
 import { MongooseModuleRepository, MongooseUserRepository } from '@avans-keuzekompas/infrastructure';
 import { SeedService } from '../seed.service';
+
 import { AuthModule } from '@avans-keuzekompas/application';
 import { AuthController } from '@avans-keuzekompas/presentation';
+
 import { UserModule } from '@avans-keuzekompas/application';
 import { UserController } from '@avans-keuzekompas/presentation';
+
+import { ModuleModule } from '@avans-keuzekompas/application';
+import { ModuleController } from '@avans-keuzekompas/presentation';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -27,8 +32,9 @@ import { AppService } from './app.service';
     ]),
     AuthModule,
     UserModule,
+    ModuleModule,
   ],
-  controllers: [AppController, AuthController, UserController],
+  controllers: [AppController, AuthController, UserController, ModuleController],
   providers: [
     AppService,
     MongooseModuleRepository,

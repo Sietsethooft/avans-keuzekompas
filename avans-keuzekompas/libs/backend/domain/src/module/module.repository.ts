@@ -1,5 +1,5 @@
-// import { Module } from './module.entity.js';
+import { Module } from './module.entity.js';
 
-// export interface ModuleRepository {
-//   findById(id: string): Promise<Module | null>;
-// }
+export abstract class ModuleRepository {
+    abstract getAll(): Promise<Module[]>;
+}

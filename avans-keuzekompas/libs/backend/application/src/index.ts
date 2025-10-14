@@ -3,3 +3,5 @@ export * from './auth/auth.service.js';
 export * from './auth/auth.module.js'
 export * from './user/user.service.js';
 export * from './user/user.module.js';
+export * from './module/module.service.js';
+export * from './module/module.module.js';
