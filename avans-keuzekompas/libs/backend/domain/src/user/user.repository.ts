@@ -5,4 +5,5 @@ export abstract class UserRepository {
   abstract findByEmail(email: string): Promise<User | null>;
   abstract deleteById(id: string): Promise<void>;
   abstract updateById(id: string, updateData: Partial<User>): Promise<User | null>;
+  abstract findByStudentNumber(studentNumber: string): Promise<User | null>;
 }

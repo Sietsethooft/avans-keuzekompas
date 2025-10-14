@@ -22,12 +22,18 @@ export class UserService {
     if (update.email) {
       const existing = await this.userRepository.findByEmail(update.email);
       if (existing && existing.id !== id) {
-        throw new Error('Email already in use');
+        throw new Error('Email adres wordt al gebruikt');
       }
     }
     if (update.password) {
       const saltRounds = 10;
       update.password = await bcrypt.hash(update.password, saltRounds);
+    }
+    if (update.studentNumber) {
+      const existing = await this.userRepository.findByStudentNumber(update.studentNumber);
+      if (existing && existing.id !== id) {
+        throw new Error('Studentnummer wordt al gebruikt');
+      }
     }
     return this.userRepository.updateById(id, update);
   }

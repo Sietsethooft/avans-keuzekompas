@@ -22,4 +22,8 @@ export class MongooseUserRepository {
   async updateById(id: string, update: Partial<User>): Promise<User | null> {
     return this.userModel.findByIdAndUpdate(id, update, { new: true }).exec();
   }
+
+  async findByStudentNumber(studentNumber: string): Promise<User | null> {
+    return this.userModel.findOne({ studentNumber }).exec();
+  }
 }
