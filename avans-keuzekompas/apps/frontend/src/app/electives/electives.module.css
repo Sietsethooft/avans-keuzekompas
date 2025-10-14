@@ -4,3 +4,14 @@
   color: #fff !important;
   border-color: #c00 !important;
 }
+
+.avansFocus:hover {
+    border-color: #c00 !important;
+    box-shadow: 0 0 0 0rem rgba(204, 0, 0, .25) !important;
+    outline: none !important;
+}
+.avansFocus:focus {
+  border-color: #c00 !important;
+  box-shadow: 0 0 0 0.2rem rgba(204, 0, 0, .25) !important;
+  outline: none !important;
+}

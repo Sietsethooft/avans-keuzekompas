@@ -151,7 +151,7 @@ export default function ElectivesPage() {
             <span className="input-group-text"><i className="bi bi-search" /></span>
             <input
               id="search"
-              className="form-control"
+              className={`form-control ${styles.avansFocus}`}
               type="text"
               placeholder="Zoek op titel, beschrijving of locatie..."
               value={search}
@@ -165,7 +165,7 @@ export default function ElectivesPage() {
           <label htmlFor="period" className="form-label fw-semibold">Periode</label>
           <select
             id="period"
-            className="form-select"
+            className={`form-select ${styles.avansFocus}`}
             value={period}
             onChange={(e) => setPeriod(e.target.value as any)}
           >
@@ -181,7 +181,7 @@ export default function ElectivesPage() {
           <label htmlFor="location" className="form-label fw-semibold">Locatie</label>
           <select
             id="location"
-            className="form-select"
+            className={`form-select ${styles.avansFocus}`}
             value={location}
             onChange={(e) => setLocation(e.target.value as any)}
           >
@@ -196,7 +196,7 @@ export default function ElectivesPage() {
           <label htmlFor="language" className="form-label fw-semibold">Taal</label>
           <select
             id="language"
-            className="form-select"
+            className={`form-select ${styles.avansFocus}`}
             value={language}
             onChange={(e) => setLanguage(e.target.value as any)}
           >
