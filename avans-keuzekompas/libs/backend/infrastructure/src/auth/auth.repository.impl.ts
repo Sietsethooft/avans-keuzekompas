@@ -12,6 +12,10 @@ export class AuthRepository {
     return this.userModel.findOne({ email }).exec();
   }
 
+  async findByStudentNumber(studentNumber: string): Promise<User | null> {
+    return this.userModel.findOne({ studentNumber }).exec();
+  }
+
   async comparePassword(password: string, hash: string): Promise<boolean> {
     return bcrypt.compare(password, hash);
   }

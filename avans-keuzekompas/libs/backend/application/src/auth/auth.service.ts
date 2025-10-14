@@ -40,6 +40,12 @@ export class AuthService {
       throw new Error('E-mail bestaat al');
     }
 
+    // Nieuw: controleer uniekheid van studentNumber
+    const existingStudent = await this.authRepository.findByStudentNumber(body.studentNumber);
+    if (existingStudent) {
+      throw new Error('Studentnummer bestaat al');
+    }
+
     const hashedPassword = await bcrypt.hash(body.password, 10);
 
     const newUser: User = await this.authRepository.createUser({
