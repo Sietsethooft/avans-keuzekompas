@@ -1,0 +1,6 @@
+.avansBtn:hover, 
+.avansBtn:focus {
+  background: #c00 !important;
+  color: #fff !important;
+  border-color: #c00 !important;
+}

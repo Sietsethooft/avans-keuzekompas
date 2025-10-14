@@ -200,7 +200,7 @@ export default function ProfilePage() {
     <div className="container py-4">
       <div className="row g-4">
         {/* LEFT */}
-        <div className="col-12 col-lg-5">
+        <div className="col-12 col-lg-4">
           <div className="d-flex flex-column gap-4 position-lg-sticky" style={{ top: "1.5rem" }}>
             {/* Profile card */}
             <div className="card border-0 shadow-sm profile-card overflow-hidden">
@@ -259,7 +259,7 @@ export default function ProfilePage() {
         </div>
 
         {/* RIGHT */}
-        <div className="col-12 col-lg-7">
+        <div className="col-12 col-lg-8">
           <div className="card border-0 shadow-sm h-100">
             <div className="card-header bg-white border-0 d-flex align-items-center justify-content-between flex-wrap gap-2">
               <h5 className="mb-0 fw-semibold">

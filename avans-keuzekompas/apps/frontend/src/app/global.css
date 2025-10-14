@@ -19,7 +19,8 @@ header {
   max-width: 1200px;
   margin: 0 auto;
   margin-top: 70px;
-  flex: 1; /* Zorgt dat main de resterende ruimte vult */
+  flex: 1;
+  width: 100%;
 }
 
 .btn-primary {
