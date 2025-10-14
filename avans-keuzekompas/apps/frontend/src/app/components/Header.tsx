@@ -5,15 +5,65 @@ import styles from './Header.module.css';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+function decodeJwt(token: string): any | null {
+  try {
+    const base64Url = token.split(".")[1];
+    if (!base64Url) return null;
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    return JSON.parse(jsonPayload);
+  } catch {
+    return null;
+  }
+}
+
 export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const [isAuthed, setIsAuthed] = useState(false);
+  const [firstName, setFirstName] = useState<string | null>(null);
 
-  // Re-check token on route change (same-tab updates)
+  // Re-check token and fetch user on route change
   useEffect(() => {
     const token = localStorage.getItem('token');
     setIsAuthed(!!token);
+
+    if (token) {
+      const payload = decodeJwt(token);
+      const userId =
+        payload?.sub ||
+        payload?.id ||
+        payload?.userId ||
+        payload?._id ||
+        localStorage.getItem("userId") ||
+        null;
+
+      if (userId) {
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/api/user/${userId}`;
+        fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data?.data?.firstName) setFirstName(data.data.firstName);
+            else setFirstName(null);
+          })
+          .catch(() => setFirstName(null));
+      } else {
+        setFirstName(null);
+      }
+    } else {
+      setFirstName(null);
+    }
   }, [pathname]);
 
   // Cross-tab updates
@@ -28,6 +78,7 @@ export default function Header() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     setIsAuthed(false);
+    setFirstName(null);
     router.push('/login');
   };
 
@@ -60,7 +111,7 @@ export default function Header() {
               aria-expanded="false"
             >
               <i className={`bi bi-person-circle ${styles.profileIcon}`}></i>
-              <span className="fw-semibold">Profiel</span>
+              <span className="fw-semibold">{firstName ?? "Profiel"}</span>
             </button>
             <ul className="dropdown-menu dropdown-menu-end">
               <li>
@@ -77,12 +128,12 @@ export default function Header() {
           </div>
         ) : (
           <div className={`d-flex align-items-center gap-3`}>
-          <Link
-            href="/login"
-            className={`btn btn-outline-secondary d-flex align-items-center gap-2 px-3 py-1 ${styles.avansLoginBtn}`}
-          >
-            <span className="fw-semibold">Inloggen</span>
-          </Link>
+            <Link
+              href="/login"
+              className={`btn btn-outline-secondary d-flex align-items-center gap-2 px-3 py-1 ${styles.avansLoginBtn}`}
+            >
+              <span className="fw-semibold">Inloggen</span>
+            </Link>
           </div>
         )}
       </div>
