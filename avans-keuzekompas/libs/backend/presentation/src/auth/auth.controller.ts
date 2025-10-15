@@ -11,7 +11,7 @@ export class AuthController {
     Logger.log('Login attempt:', body.email);
     try {
       const result = await this.authService.loginWithEmailAndPassword(body.email, body.password);
-      Logger.log('Login successful for:', result);
+      Logger.log('Login successful for:', JSON.stringify(result));
       return jsonResponse(200, 'Login succesvol', result);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Login mislukt';
