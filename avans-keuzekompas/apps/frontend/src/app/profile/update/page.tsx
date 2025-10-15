@@ -209,7 +209,7 @@ const UpdateProfilePage: React.FC = () => {
   }
 
   return (
-    <div>
+    <div className="d-flex justify-content-center align-items-center">
       <div className="card p-4 custom-shadow" style={{ width: "500px" }}>
         <h2 className="mb-4 text-center">Profiel bijwerken</h2>
         <form noValidate onSubmit={handleSubmit}>

@@ -49,7 +49,7 @@ export default function ProfilePage() {
     if (!result.isConfirmed || !user) return;
 
     try {
-      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/user/profile`;
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/user/${user.id}`;
       const token = localStorage.getItem('token');
       const res = await fetch(url, {
         method: 'DELETE',
@@ -110,7 +110,7 @@ export default function ProfilePage() {
     }
 
     const fetchUser = async () => {
-      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/user/${userId}`;
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/user/profile`;
       try {
         const res = await fetch(url, {
           method: "GET",
@@ -161,13 +161,26 @@ export default function ProfilePage() {
   // Haal module-titels op
   useEffect(() => {
     const fetchTitles = async () => {
-      if (user?.favorites.length) {
+      const token = localStorage.getItem("token");
+      if (user?.favorites.length && token) {
         const modules = await Promise.all(
           user.favorites.map(async (id) => {
             try {
-              const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/module/${id}`);
+              const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/module/${id}`,
+                {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
               const data = await res.json();
-              return { id, title: data?.data?.title || id };
+              if (res.ok && data.status === 200 && data.data?.title) {
+                return { id, title: data.data.title };
+              }
+              return { id, title: id };
             } catch {
               return { id, title: id };
             }
@@ -185,7 +198,7 @@ export default function ProfilePage() {
   const handleRemoveFavorite = async (id: string) => {
     const token = localStorage.getItem("token");
     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/module/favorite/${id}`, {
-      method: "DELETE",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -290,7 +303,7 @@ export default function ProfilePage() {
               </h5>
               {favoriteModules.length > 0 && (
                 <span className="badge bg-light text-dark">
-                  {favoriteModules.length} geselecteerd
+                  {favoriteModules.length} {favoriteModules.length === 1 ? "favoriete" : "favorieten"}
                 </span>
               )}
             </div>
