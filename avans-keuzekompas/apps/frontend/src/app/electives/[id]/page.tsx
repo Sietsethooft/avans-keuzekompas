@@ -1,29 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import type { Module } from "@avans-keuzekompas/types";
 import styles from './page.module.css';
 
-// type FavoritesStore = { modules: string[] };
 type JwtPayload = { sub: string; role?: string; exp?: number; iat?: number };
-
-// function readFavorites(): FavoritesStore {
-//   if (typeof window === 'undefined') return { modules: [] };
-//   try {
-//     const raw = localStorage.getItem('favorites:modules');
-//     if (!raw) return { modules: [] };
-//     const parsed = JSON.parse(raw);
-//     if (!Array.isArray(parsed.modules)) return { modules: [] };
-//     return { modules: parsed.modules as string[] };
-//   } catch {
-//     return { modules: [] };
-//   }
-// }
-
-// function writeFavorites(store: FavoritesStore) {
-//   if (typeof window === 'undefined') return;
-//   localStorage.setItem('favorites:modules', JSON.stringify(store));
-// }
 
 function decodeJwt<T>(token: string): T | null {
   try {
@@ -151,8 +133,7 @@ export default function ElectiveDetailPage() {
         // Fallback: lokale cache gebruiken
       }
       if (!cancelled) {
-        const store = readFavorites();
-        setIsFavorite(store.modules.includes(String(id)));
+        setIsFavorite(false);
       }
     })();
 
@@ -187,14 +168,6 @@ export default function ElectiveDetailPage() {
         // fallback: optimistisch
         setIsFavorite((prev) => !prev);
       }
-
-      // optioneel: lokale cache bijhouden als fallback
-      const store = readFavorites();
-      const idx = store.modules.indexOf(String(id));
-      const nowFav = typeof result?.isFavorite === 'boolean' ? result.isFavorite : idx < 0;
-      if (nowFav && idx < 0) store.modules.push(String(id));
-      if (!nowFav && idx >= 0) store.modules.splice(idx, 1);
-      writeFavorites(store);
     } catch (e: any) {
       console.error(e);
       alert(e?.message || 'Favoriet toggelen mislukt.');
