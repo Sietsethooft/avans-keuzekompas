@@ -5,6 +5,17 @@ import { useRouter } from 'next/navigation';
 import styles from './electives.module.css';
 import type { Module as ModuleItem } from "@avans-keuzekompas/types";
 
+// Kleine helper om JSON te fetchen (ondersteunt jouw jsonResponse envelope)
+async function fetchJson<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
+  const res = await fetch(input, init);
+  const data = await res.json().catch(() => null);
+  if (!res.ok || !data) {
+    throw new Error((data && (data.message || data.error)) || `HTTP ${res.status}`);
+  }
+  const isEnvelope = typeof data === 'object' && 'status' in data && 'data' in data;
+  return (isEnvelope ? (data.data as T) : (data as T));
+}
+
 export default function ElectivesPage() {
   const router = useRouter();
 
@@ -71,6 +82,33 @@ export default function ElectivesPage() {
     fetchModules();
   }, [router]);
 
+  // Favorieten inladen uit API profiel
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (!token) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/api/user/profile`;
+        const me = await fetchJson<{ favorites?: string[] }>(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!cancelled && Array.isArray(me?.favorites)) {
+          setFavorites(new Set(me.favorites.map(String)));
+        }
+      } catch {
+        // optioneel: fallback op lokale cache, hier overslaan
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, []);
+
   // Filter options
   const locationOptions = useMemo(() => {
     const set = new Set<string>();
@@ -96,12 +134,56 @@ export default function ElectivesPage() {
     });
   }, [modules, search, period, location, language]);
 
-  const toggleFavorite = (id: string) => {
+  // Toggle via API (optimistisch)
+  const toggleFavorite = async (id: string) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (!token) {
+      router.replace('/login');
+      return;
+    }
+
+    // Optimistisch updaten
     setFavorites((prev) => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
+
+    try {
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/module/favorite/${encodeURIComponent(String(id))}`;
+      const result = await fetchJson<{ isFavorite?: boolean; favorites?: string[] }>(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Sync met server-respons
+      let shouldBeFav: boolean | null = null;
+      if (typeof result?.isFavorite === 'boolean') {
+        shouldBeFav = result.isFavorite;
+      } else if (Array.isArray(result?.favorites)) {
+        shouldBeFav = result.favorites.map(String).includes(String(id));
+      }
+
+      if (shouldBeFav !== null) {
+        setFavorites((prev) => {
+          const next = new Set(prev);
+          if (shouldBeFav) next.add(id);
+          else next.delete(id);
+          return next;
+        });
+      }
+    } catch (e: any) {
+      // Revert bij fout
+      setFavorites((prev) => {
+        const next = new Set(prev);
+        next.has(id) ? next.delete(id) : next.add(id);
+        return next;
+      });
+      alert(e?.message || 'Favoriet toggelen mislukt.');
+    }
   };
 
   const onMoreInfo = (id: string) => {
@@ -199,7 +281,7 @@ export default function ElectivesPage() {
           Modules
         </h5>
         <span className="badge bg-light text-dark">
-        {filteredModules.length} {filteredModules.length === 1 ? 'resultaat' : 'resultaten'}
+          {filteredModules.length} {filteredModules.length === 1 ? 'resultaat' : 'resultaten'}
         </span>
       </div>
 

@@ -4,26 +4,26 @@ import { useParams, useRouter } from 'next/navigation';
 import type { Module } from "@avans-keuzekompas/types";
 import styles from './page.module.css';
 
-type FavoritesStore = { modules: string[] };
+// type FavoritesStore = { modules: string[] };
 type JwtPayload = { sub: string; role?: string; exp?: number; iat?: number };
 
-function readFavorites(): FavoritesStore {
-  if (typeof window === 'undefined') return { modules: [] };
-  try {
-    const raw = localStorage.getItem('favorites:modules');
-    if (!raw) return { modules: [] };
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed.modules)) return { modules: [] };
-    return { modules: parsed.modules as string[] };
-  } catch {
-    return { modules: [] };
-  }
-}
+// function readFavorites(): FavoritesStore {
+//   if (typeof window === 'undefined') return { modules: [] };
+//   try {
+//     const raw = localStorage.getItem('favorites:modules');
+//     if (!raw) return { modules: [] };
+//     const parsed = JSON.parse(raw);
+//     if (!Array.isArray(parsed.modules)) return { modules: [] };
+//     return { modules: parsed.modules as string[] };
+//   } catch {
+//     return { modules: [] };
+//   }
+// }
 
-function writeFavorites(store: FavoritesStore) {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem('favorites:modules', JSON.stringify(store));
-}
+// function writeFavorites(store: FavoritesStore) {
+//   if (typeof window === 'undefined') return;
+//   localStorage.setItem('favorites:modules', JSON.stringify(store));
+// }
 
 function decodeJwt<T>(token: string): T | null {
   try {

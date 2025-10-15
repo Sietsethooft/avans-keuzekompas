@@ -1,4 +1,4 @@
-import { Controller, Get, Logger, Param, Delete, UseGuards, Put, Body } from '@nestjs/common';
+import { Controller, Get, Logger, Param, Delete, UseGuards, Put, Body, Req } from '@nestjs/common';
 import { UserService } from '@avans-keuzekompas/application';
 import { jsonResponse } from '@avans-keuzekompas/utils';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
@@ -7,6 +7,23 @@ import { OwnerOrAdminGuard } from '../auth/owner-or-admin.guard.js';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+    @Get('profile')
+    @UseGuards(JwtAuthGuard)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async getProfile(@Req() req: any) {
+      const userId = req?.user?.sub ?? req?.user?.id ?? req?.user?._id ?? req?.user?.userId;
+      Logger.log('Get profile attempt: ' + userId);
+      try {
+        const profile = await this.userService.getUserById(userId);
+        Logger.log('Get profile successful for: ' + userId);
+        return jsonResponse(200, 'Profile retrieved successfully', profile);
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to retrieve profile';
+        Logger.log('Get profile failed: ' + errorMessage);
+        return jsonResponse(500, errorMessage, null);
+      }
+    }
 
     @Get(':id')
     async getUser(@Param('id') id: string) {
@@ -51,21 +68,4 @@ export class UserController {
         return jsonResponse(500, errorMessage, null);
       }
     }    
-
-    @Get('profile')
-    @UseGuards(JwtAuthGuard)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async getProfile(@Req() req: any) {
-      const userId = req?.user?.sub ?? req?.user?.id ?? req?.user?._id ?? req?.user?.userId;
-      Logger.log('Get profile attempt: ' + userId);
-      try {
-        const profile = await this.userService.getUserById(userId);
-        Logger.log('Get profile successful for: ' + userId);
-        return jsonResponse(200, 'Profile retrieved successfully', profile);
-      } catch (err: unknown) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to retrieve profile';
-        Logger.log('Get profile failed: ' + errorMessage);
-        return jsonResponse(500, errorMessage, null);
-      }
-    }
 }
