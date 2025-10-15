@@ -6,7 +6,6 @@ import Swal from "sweetalert2";
 import "./profile.css";
 
 // Helper for decoding JWT
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function decodeJwt(token: string): any | null {
   try {
     const base64Url = token.split(".")[1];
@@ -25,12 +24,15 @@ function decodeJwt(token: string): any | null {
   }
 }
 
+type FavoriteModule = { id: string; title: string };
+
 export default function ProfilePage() {
   const router = useRouter();
   const [checked, setChecked] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [favoriteModules, setFavoriteModules] = useState<FavoriteModule[]>([]);
 
   const handleDeleteAccount = async () => {
     const result = await Swal.fire({
@@ -86,15 +88,11 @@ export default function ProfilePage() {
   };
 
   useEffect(() => {
-
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    console.log("[ProfilePage] Token found?", !!token);
 
     let userId: string | null = null;
-
     if (token) {
       const payload = decodeJwt(token);
-      console.log("[ProfilePage] JWT payload:", payload);
       if (payload) {
         userId =
           payload.sub ||
@@ -106,18 +104,13 @@ export default function ProfilePage() {
       }
     }
 
-    console.log("[ProfilePage] Given userId:", userId);
-
     if (!token || !userId) {
-      console.warn("[ProfilePage] No valid token or userId -> redirect /login");
       router.replace("/login");
       return;
     }
 
     const fetchUser = async () => {
       const url = `${process.env.NEXT_PUBLIC_API_URL}/api/user/${userId}`;
-      console.log("[ProfilePage] Fetch start:", url);
-
       try {
         const res = await fetch(url, {
           method: "GET",
@@ -127,20 +120,15 @@ export default function ProfilePage() {
           },
         });
 
-        console.log("[ProfilePage] HTTP status:", res.status);
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let data: any = null;
         try {
           data = await res.json();
         } catch (jErr) {
           console.error("[ProfilePage] Could not parse response as JSON:", jErr);
         }
-        console.log("[ProfilePage] Response JSON:", data);
 
         if (!res.ok || !data || data.status !== 200 || !data.data) {
           const msg = data?.message || "Could not retrieve user data.";
-          console.error("[ProfilePage] Error status:", msg);
           setError(msg);
           setLoading(false);
           return;
@@ -158,13 +146,10 @@ export default function ProfilePage() {
           favorites: apiUser.favorites || [],
         };
 
-        console.log("[ProfilePage] Mapped user object:", mappedUser);
         setUser(mappedUser);
         setChecked(true);
         setLoading(false);
-        console.log("[ProfilePage] User loaded in state.");
       } catch (err) {
-        console.error("[ProfilePage] Fetch exception:", err);
         setError("Iets is misgegaan tijdens je profiel laden.");
         setLoading(false);
       }
@@ -172,6 +157,45 @@ export default function ProfilePage() {
 
     fetchUser();
   }, [router]);
+
+  // Haal module-titels op
+  useEffect(() => {
+    const fetchTitles = async () => {
+      if (user?.favorites.length) {
+        const modules = await Promise.all(
+          user.favorites.map(async (id) => {
+            try {
+              const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/module/${id}`);
+              const data = await res.json();
+              return { id, title: data?.data?.title || id };
+            } catch {
+              return { id, title: id };
+            }
+          })
+        );
+        setFavoriteModules(modules);
+      } else {
+        setFavoriteModules([]);
+      }
+    };
+    fetchTitles();
+  }, [user]);
+
+  // Favoriet verwijderen
+  const handleRemoveFavorite = async (id: string) => {
+    const token = localStorage.getItem("token");
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/module/favorite/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    setFavoriteModules((prev) => prev.filter((mod) => mod.id !== id));
+    setUser((prev) =>
+      prev ? { ...prev, favorites: prev.favorites.filter((favId) => favId !== id) } : prev
+    );
+  };
 
   if (loading) {
     return (
@@ -192,7 +216,6 @@ export default function ProfilePage() {
   }
 
   if (!checked || !user) {
-    console.log("[ProfilePage] Niet klaar om te renderen. checked:", checked, "user:", user);
     return null;
   }
 
@@ -265,28 +288,36 @@ export default function ProfilePage() {
               <h5 className="mb-0 fw-semibold">
                 <i className="bi bi-star-fill text-warning me-2"></i>Favoriete modules
               </h5>
-              {user.favorites.length > 0 && (
+              {favoriteModules.length > 0 && (
                 <span className="badge bg-light text-dark">
-                  {user.favorites.length} geselecteerd
+                  {favoriteModules.length} geselecteerd
                 </span>
               )}
             </div>
             <div className="card-body">
-              {user.favorites.length > 0 ? (
+              {favoriteModules.length > 0 ? (
                 <ul className="list-group list-group-flush favorites-list">
-                  {user.favorites.map((fav, i) => (
+                  {favoriteModules.map((mod) => (
                     <li
-                      key={i}
+                      key={mod.id}
                       className="list-group-item border-0 d-flex align-items-center px-0 favorite-item"
                     >
                       <span className="favorite-icon me-3">
                         <i className="bi bi-star-fill text-warning"></i>
                       </span>
-                      <span className="flex-grow-1">{fav}</span>
+                      <span
+                        className="flex-grow-1 favorite-title-link"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => router.push(`/electives/${mod.id}`)}
+                        title={`Bekijk ${mod.title}`}
+                      >
+                        {mod.title}
+                      </span>
                       <button
                         type="button"
-                        className="btn btn-sm btn-outline-light text-muted"
-                        title="Verwijderen (voorbeeld)"
+                        className="btn btn-sm btn-outline-danger"
+                        title="Verwijderen uit favorieten"
+                        onClick={() => handleRemoveFavorite(mod.id)}
                       >
                         <i className="bi bi-x-lg"></i>
                       </button>
