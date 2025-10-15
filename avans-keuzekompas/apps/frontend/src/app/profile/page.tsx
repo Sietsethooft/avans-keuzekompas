@@ -47,7 +47,7 @@ export default function ProfilePage() {
     if (!result.isConfirmed || !user) return;
 
     try {
-      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/user/${user.id}`;
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/user/profile`;
       const token = localStorage.getItem('token');
       const res = await fetch(url, {
         method: 'DELETE',

@@ -51,4 +51,21 @@ export class UserController {
         return jsonResponse(500, errorMessage, null);
       }
     }    
+
+    @Get('profile')
+    @UseGuards(JwtAuthGuard)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async getProfile(@Req() req: any) {
+      const userId = req?.user?.sub ?? req?.user?.id ?? req?.user?._id ?? req?.user?.userId;
+      Logger.log('Get profile attempt: ' + userId);
+      try {
+        const profile = await this.userService.getUserById(userId);
+        Logger.log('Get profile successful for: ' + userId);
+        return jsonResponse(200, 'Profile retrieved successfully', profile);
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to retrieve profile';
+        Logger.log('Get profile failed: ' + errorMessage);
+        return jsonResponse(500, errorMessage, null);
+      }
+    }
 }

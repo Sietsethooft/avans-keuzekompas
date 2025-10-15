@@ -126,7 +126,6 @@ export default function ElectiveDetailPage() {
     return () => controller.abort();
   }, [id, router]);
 
-  // Favorite status ophalen via API (fallback naar localStorage)
   useEffect(() => {
     if (!id) return;
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -135,32 +134,22 @@ export default function ElectiveDetailPage() {
     let cancelled = false;
 
     (async () => {
-      // 1) Probeer favorites uit een "me" endpoint te halen (mogelijk /api/user/me of /api/auth/me)
-      const tryEndpoints = [
-        `${process.env.NEXT_PUBLIC_API_URL}/api/user/me`,
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`,
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`,
-      ];
-
-      for (const url of tryEndpoints) {
-        try {
-          const me = await fetchJson<{ favorites?: string[] }>(url, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          if (!cancelled && Array.isArray(me?.favorites)) {
-            setIsFavorite(me.favorites.map(String).includes(String(id)));
-            return;
-          }
-        } catch {
-          // ga door naar volgende mogelijke endpoint
+      try {
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/api/user/profile`;
+        const me = await fetchJson<{ favorites?: string[] }>(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!cancelled && Array.isArray(me?.favorites)) {
+          setIsFavorite(me.favorites.map(String).includes(String(id)));
+          return;
         }
+      } catch {
+        // Fallback: lokale cache gebruiken
       }
-
-      // 2) Fallback: lokale cache gebruiken
       if (!cancelled) {
         const store = readFavorites();
         setIsFavorite(store.modules.includes(String(id)));
