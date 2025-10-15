@@ -42,6 +42,17 @@ function decodeJwt<T>(token: string): T | null {
   }
 }
 
+// Kleine helper om API JSON te halen (ondersteunt jouw jsonResponse envelope)
+async function fetchJson<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
+  const res = await fetch(input, init);
+  const data = await res.json().catch(() => null);
+  if (!res.ok || !data) {
+    throw new Error((data && (data.message || data.error)) || `HTTP ${res.status}`);
+  }
+  const isEnvelope = typeof data === 'object' && 'status' in data && 'data' in data;
+  return (isEnvelope ? (data.data as T) : (data as T));
+}
+
 export default function ElectiveDetailPage() {
   const params = useParams<{ id: string }>();
   const id = params?.id;
@@ -92,7 +103,7 @@ export default function ElectiveDetailPage() {
         setLoading(true);
         setError(null);
         const url = `${process.env.NEXT_PUBLIC_API_URL}/api/module/${encodeURIComponent(String(id))}`;
-        const res = await fetch(url, {
+        const payload = await fetchJson<Module>(url, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -100,21 +111,7 @@ export default function ElectiveDetailPage() {
           },
           signal: controller.signal,
         });
-
-        const data = await res.json().catch(() => null);
-        if (!res.ok || !data) {
-          throw new Error(data?.message || `HTTP ${res.status}`);
-        }
-
-        if (typeof data === 'object' && 'status' in data && 'data' in data) {
-          const payload = Array.isArray((data as any).data)
-            ? (data as any).data[0]
-            : (data as any).data;
-          if (!payload) throw new Error('Module niet gevonden.');
-          setMod(payload as Module);
-        } else {
-          setMod(data as Module);
-        }
+        setMod(payload);
       } catch (e: any) {
         if (e?.name !== 'AbortError') {
           console.error(e);
@@ -129,24 +126,90 @@ export default function ElectiveDetailPage() {
     return () => controller.abort();
   }, [id, router]);
 
+  // Favorite status ophalen via API (fallback naar localStorage)
   useEffect(() => {
     if (!id) return;
-    const store = readFavorites();
-    setIsFavorite(store.modules.includes(String(id)));
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (!token) return;
+
+    let cancelled = false;
+
+    (async () => {
+      // 1) Probeer favorites uit een "me" endpoint te halen (mogelijk /api/user/me of /api/auth/me)
+      const tryEndpoints = [
+        `${process.env.NEXT_PUBLIC_API_URL}/api/user/me`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`,
+      ];
+
+      for (const url of tryEndpoints) {
+        try {
+          const me = await fetchJson<{ favorites?: string[] }>(url, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (!cancelled && Array.isArray(me?.favorites)) {
+            setIsFavorite(me.favorites.map(String).includes(String(id)));
+            return;
+          }
+        } catch {
+          // ga door naar volgende mogelijke endpoint
+        }
+      }
+
+      // 2) Fallback: lokale cache gebruiken
+      if (!cancelled) {
+        const store = readFavorites();
+        setIsFavorite(store.modules.includes(String(id)));
+      }
+    })();
+
+    return () => { cancelled = true; };
   }, [id]);
 
-  const toggleFavorite = () => {
+  // Toggle via API
+  const toggleFavorite = async () => {
     if (!id) return;
-    const store = readFavorites();
-    const idx = store.modules.indexOf(String(id));
-    if (idx >= 0) {
-      store.modules.splice(idx, 1);
-      setIsFavorite(false);
-    } else {
-      store.modules.push(String(id));
-      setIsFavorite(true);
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (!token) {
+      router.replace('/login');
+      return;
     }
-    writeFavorites(store);
+
+    try {
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/module/favorite/${encodeURIComponent(String(id))}`;
+      const result = await fetchJson<{ isFavorite?: boolean; favorites?: string[] }>(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // status bepalen vanuit API-respons
+      if (typeof result?.isFavorite === 'boolean') {
+        setIsFavorite(result.isFavorite);
+      } else if (Array.isArray(result?.favorites)) {
+        setIsFavorite(result.favorites.map(String).includes(String(id)));
+      } else {
+        // fallback: optimistisch
+        setIsFavorite((prev) => !prev);
+      }
+
+      // optioneel: lokale cache bijhouden als fallback
+      const store = readFavorites();
+      const idx = store.modules.indexOf(String(id));
+      const nowFav = typeof result?.isFavorite === 'boolean' ? result.isFavorite : idx < 0;
+      if (nowFav && idx < 0) store.modules.push(String(id));
+      if (!nowFav && idx >= 0) store.modules.splice(idx, 1);
+      writeFavorites(store);
+    } catch (e: any) {
+      console.error(e);
+      alert(e?.message || 'Favoriet toggelen mislukt.');
+    }
   };
 
   const handleShare = async () => {
