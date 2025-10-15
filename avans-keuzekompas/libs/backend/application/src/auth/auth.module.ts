@@ -18,7 +18,7 @@ import { JwtStrategy } from '@avans-keuzekompas/infrastructure';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         secret: config.get<string>('JWT_SECRET') ?? 'dev-secret',
-        signOptions: { expiresIn: '1h' },
+        signOptions: { expiresIn: '1d' },
       }),
     }),
   ],

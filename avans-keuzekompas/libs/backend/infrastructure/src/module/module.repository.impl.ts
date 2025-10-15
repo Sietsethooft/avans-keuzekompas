@@ -10,4 +10,8 @@ export class MongooseModuleRepository {
   async getAll(): Promise<Module[]> {
     return this.moduleModel.find().exec();
   }
+
+  async getById(id: string): Promise<Module | null> {
+    return this.moduleModel.findById(id).exec();
+  }
 }

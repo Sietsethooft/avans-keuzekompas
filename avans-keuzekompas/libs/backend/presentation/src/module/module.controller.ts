@@ -1,4 +1,4 @@
-import { Controller, Get, Logger, UseGuards } from '@nestjs/common';
+import { Controller, Get, Logger, Param, UseGuards } from '@nestjs/common';
 import { ModuleService } from '@avans-keuzekompas/application';
 import { jsonResponse } from '@avans-keuzekompas/utils';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
@@ -18,6 +18,25 @@ export class ModuleController {
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to retrieve modules';
       Logger.log('Get all modules failed:', errorMessage);
+      return jsonResponse(500, errorMessage, null);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  async getModuleById(@Param('id') id: string) {
+    Logger.log('Get module by ID attempt');
+    try {
+      const module = await this.moduleService.getModuleById(id);
+      if (!module) {
+        Logger.log('Get module by ID failed: Module not found');
+        return jsonResponse(404, 'Module not found', null);
+      }
+      Logger.log('Get module by ID successful');
+      return jsonResponse(200, 'Module retrieved successfully', module);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to retrieve module';
+      Logger.log('Get module by ID failed:', errorMessage);
       return jsonResponse(500, errorMessage, null);
     }
   }

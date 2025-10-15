@@ -40,7 +40,6 @@ export default function ElectivesPage() {
           },
         });
 
-        // Verwacht { status, message, data }
         const data = await res.json().catch(() => null);
         if (!res.ok || !data || data.status !== 200 || !Array.isArray(data.data)) {
           setError(data?.message || 'Kon modules niet ophalen.');
@@ -72,7 +71,7 @@ export default function ElectivesPage() {
     fetchModules();
   }, [router]);
 
-  // Afgeleide filter-opties
+  // Filter options
   const locationOptions = useMemo(() => {
     const set = new Set<string>();
     modules.forEach((m) => set.add(m.location));
@@ -106,8 +105,6 @@ export default function ElectivesPage() {
   };
 
   const onMoreInfo = (id: string) => {
-    // Je kunt later een detailpagina /electives/[id] toevoegen
-    // Voor nu navigeren we alvast naar die route
     router.push(`/electives/${id}`);
   };
 
