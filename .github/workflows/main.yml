@@ -147,7 +147,13 @@ jobs:
 
       - run: npm ci --legacy-peer-deps
 
+      - name: Inject NEXT_PUBLIC_API_URL for Web build
+        run: |
+          echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" > apps/frontend/.env.production
+
       - name: Build Web (Next.js)
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
         run: npx nx run web:build --configuration=production --no-cloud
 
       - name: Prepare Next.js deploy folder (standalone)
@@ -159,13 +165,22 @@ jobs:
           mkdir -p frontend-deploy/apps/frontend/.next
           cp -R apps/frontend/.next/static frontend-deploy/apps/frontend/.next/static
           cp -R apps/frontend/public frontend-deploy/apps/frontend/public || true
+          # Sanity check
+          ls -l frontend-deploy | grep server.js || (echo "server.js missing" && exit 1)
 
-      - name: Create Web package.json with correct start script
+      - name: Create minimal Web package.json (start script only)
         run: |
-          jq '.scripts.start="node server.js"' package.json > frontend-deploy/package.json
-          cp package-lock.json frontend-deploy/
-          cd frontend-deploy
-          npm ci --omit=dev --legacy-peer-deps
+          cat > frontend-deploy/package.json <<'JSON'
+          {
+            "name": "web-standalone",
+            "private": true,
+            "version": "1.0.0",
+            "scripts": {
+              "start": "node server.js"
+            }
+          }
+          JSON
+          # Geen npm ci nodig; .next/standalone bevat node_modules
 
       - name: Zip Web artifact
         run: |
