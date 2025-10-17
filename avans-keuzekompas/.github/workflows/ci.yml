@@ -1,41 +1,75 @@
-name: CI
+name: Deploy web + api to Azure
 
 on:
   push:
     branches:
-      - master
-  pull_request:
+      - 'release/**'
+  workflow_dispatch:
 
-permissions:
-  actions: read
-  contents: read
+env:
+  NODE_VERSION: 22
 
 jobs:
-  main:
+  build-and-deploy-api:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          filter: tree:0
-          fetch-depth: 0
 
-      # This enables task distribution via Nx Cloud
-      # Run this command as early as possible, before dependencies are installed
-      # Learn more at https://nx.dev/ci/reference/nx-cloud-cli#npx-nxcloud-startcirun
-      # Uncomment this line to enable task distribution
-      # - run: npx nx start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="build"
-
-      # Cache node_modules
-      - uses: actions/setup-node@v4
+      - name: Use Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - run: npm ci --legacy-peer-deps
 
-      # Prepend any command with "nx-cloud record --" to record its logs to Nx Cloud
-      # - run: npx nx-cloud record -- echo Hello World
-      - run: npx nx run-many -t lint test build typecheck
-      # Nx Cloud recommends fixes for failures to help you get CI green faster. Learn more: https://nx.dev/ci/features/self-healing-ci
-      - run: npx nx fix-ci
-        if: always()
+      - name: Build API (NestJS)
+        run: npx nx run api:build --configuration=production
+
+      - name: Zip API artifact
+        run: |
+          cd apps/backend/dist
+          zip -r ../../../../api.zip .
+        shell: bash
+
+      - name: Deploy API to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
+          package: api.zip
+
+  build-and-deploy-web:
+    needs: build-and-deploy-api
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - run: npm ci --legacy-peer-deps
+
+      - name: Build Web (Next.js)
+        run: npx nx run web:build --configuration=production
+
+      - name: Prepare Next.js deploy folder
+        run: |
+          mkdir -p frontend-deploy
+          cp -R apps/frontend/.next frontend-deploy/.next
+          cp -R apps/frontend/public frontend-deploy/public
+          cp apps/frontend/package.json frontend-deploy/package.json
+          cp apps/frontend/next.config.js frontend-deploy/next.config.js || true
+        shell: bash
+
+      - name: Zip Web artifact
+        run: zip -r web.zip frontend-deploy
+        shell: bash
+
+      - name: Deploy Web to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          publish-profile: ${{ secrets.AZURE_WEB_PUBLISH_PROFILE }}
+          package: web.zip

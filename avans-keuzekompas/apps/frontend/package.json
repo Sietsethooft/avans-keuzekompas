@@ -5,16 +5,20 @@
   "nx": {
     "name": "web",
     "targets": {
-    "serve": {
-      "executor": "@nx/next:server",
-      "options": {
-        "buildTarget": "web:build",
-        "dev": true
+      "serve": {
+        "executor": "@nx/next:server",
+        "options": {
+          "buildTarget": "web:build",
+          "dev": true
+        }
       }
     }
-  }
   },
-  "dependencies": {
+  "scripts": {
+    "build": "next build",
+    "start": "next start -p $PORT"
+  },
+    "dependencies": {
     "next": "^15.5.4",
     "react": "19.0.0",
     "react-dom": "19.0.0"
