@@ -37,34 +37,6 @@ jobs:
           # Install production dependencies inside dist using the pruned lockfile
           cd apps/backend/dist
           npm ci --omit=dev --legacy-peer-deps
-          # Ensure web.config exists at dist root (fallback)
-          if [ ! -f web.config ]; then
-            cat > web.config << 'EOF'
-            <?xml version="1.0" encoding="utf-8"?>
-            <configuration>
-              <system.webServer>
-                <handlers>
-                  <add name="iisnode" path="main.js" verb="*" modules="iisnode" />
-                </handlers>
-                <rewrite>
-                  <rules>
-                    <rule name="StaticContent">
-                      <action type="None" />
-                    </rule>
-                    <rule name="DynamicContent">
-                      <conditions>
-                        <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
-                      </conditions>
-                      <action type="Rewrite" url="main.js" />
-                    </rule>
-                  </rules>
-                </rewrite>
-                <httpErrors existingResponse="PassThrough" />
-                <iisnode nodeProcessCommandLine="%ProgramFiles%\\nodejs\\node.exe" />
-              </system.webServer>
-            </configuration>
-            EOF
-          fi
         shell: bash
 
       - name: Zip API artifact
@@ -111,32 +83,32 @@ jobs:
           cp -R apps/frontend/.next/static frontend-deploy/apps/frontend/.next/static
           # Public assets (if referenced directly)
           cp -R apps/frontend/public frontend-deploy/apps/frontend/public || true
-          # Generate web.config for Windows App Service to start the Next.js server via iisnode
-          cat > frontend-deploy/web.config << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <configuration>
-            <system.webServer>
-              <handlers>
-                <add name="iisnode" path="apps/frontend/server.js" verb="*" modules="iisnode" />
-              </handlers>
-              <rewrite>
-                <rules>
-                  <rule name="StaticContent">
-                    <action type="None" />
-                  </rule>
-                  <rule name="DynamicContent">
-                    <conditions>
-                      <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
-                    </conditions>
-                    <action type="Rewrite" url="apps/frontend/server.js" />
-                  </rule>
-                </rules>
-              </rewrite>
-              <httpErrors existingResponse="PassThrough" />
-              <iisnode nodeProcessCommandLine="%ProgramFiles%\\nodejs\\node.exe" />
-            </system.webServer>
-          </configuration>
-          EOF
+          # Generate web.config for Windows App Service to start the Next.js server via iisnode (avoid heredoc issues)
+          printf '%s\n' \
+            '<?xml version="1.0" encoding="utf-8"?>' \
+            '<configuration>' \
+            '  <system.webServer>' \
+            '    <handlers>' \
+            '      <add name="iisnode" path="apps/frontend/server.js" verb="*" modules="iisnode" />' \
+            '    </handlers>' \
+            '    <rewrite>' \
+            '      <rules>' \
+            '        <rule name="StaticContent">' \
+            '          <action type="None" />' \
+            '        </rule>' \
+            '        <rule name="DynamicContent">' \
+            '          <conditions>' \
+            '            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />' \
+            '          </conditions>' \
+            '          <action type="Rewrite" url="apps/frontend/server.js" />' \
+            '        </rule>' \
+            '      </rules>' \
+            '    </rewrite>' \
+            '    <httpErrors existingResponse="PassThrough" />' \
+            '    <iisnode nodeProcessCommandLine="%ProgramFiles%\\nodejs\\node.exe" />' \
+            '  </system.webServer>' \
+            '</configuration>' \
+            > frontend-deploy/web.config
         shell: bash
 
       - name: Zip Web artifact
