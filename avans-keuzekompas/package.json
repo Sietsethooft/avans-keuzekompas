@@ -4,8 +4,8 @@
   "license": "MIT",
   "scripts": {
     "start": "nx run-many --target=serve --projects=api,web --parallel",
-    "start:backend": "nx serve api",
-    "start:frontend": "nx serve web"
+    "start:api": "nx serve api",
+    "start:web": "nx serve web"
   },
   "private": true,
   "devDependencies": {
