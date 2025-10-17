@@ -165,8 +165,8 @@ jobs:
           mkdir -p frontend-deploy/apps/frontend/.next
           cp -R apps/frontend/.next/static frontend-deploy/apps/frontend/.next/static
           cp -R apps/frontend/public frontend-deploy/apps/frontend/public || true
-          # Sanity check
-          ls -l frontend-deploy | grep server.js || (echo "server.js missing" && exit 1)
+          # Sanity check: in Nx monorepo staat server.js onder apps/frontend/
+          ls -l frontend-deploy/apps/frontend | grep server.js || (echo "apps/frontend/server.js missing" && exit 1)
 
       - name: Create minimal Web package.json (start script only)
         run: |
@@ -176,7 +176,7 @@ jobs:
             "private": true,
             "version": "1.0.0",
             "scripts": {
-              "start": "node server.js"
+              "start": "node apps/frontend/server.js"
             }
           }
           JSON
