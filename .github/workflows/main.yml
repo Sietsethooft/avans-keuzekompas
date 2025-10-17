@@ -37,6 +37,8 @@ jobs:
           # Install production dependencies inside dist using the pruned lockfile
           cd apps/backend/dist
           npm ci --omit=dev --legacy-peer-deps
+          # Create a server.js wrapper so Linux App Service auto-starts Node without startup-command
+          printf "require('./main.js');\n" > server.js
         shell: bash
 
       - name: Zip API artifact
@@ -83,6 +85,8 @@ jobs:
           cp -R apps/frontend/.next/static frontend-deploy/apps/frontend/.next/static
           # Public assets (if referenced directly)
           cp -R apps/frontend/public frontend-deploy/apps/frontend/public || true
+          # Create a root server.js wrapper so Linux App Service auto-starts Node without startup-command
+          printf "require('./apps/frontend/server.js');\n" > frontend-deploy/server.js
           # Generate web.config for Windows App Service to start the Next.js server via iisnode (avoid heredoc issues)
           printf '%s\n' \
             '<?xml version="1.0" encoding="utf-8"?>' \
