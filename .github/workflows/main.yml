@@ -37,6 +37,13 @@ jobs:
           cd apps/backend/dist
           npm ci --omit=dev --legacy-peer-deps
 
+      - name: Toon package.json en inhoud dist-map (debug)
+        run: |
+          echo "---- package.json ----"
+          cat apps/backend/dist/package.json
+          echo "---- inhoud dist ----"
+          ls -l apps/backend/dist
+
       - name: Zip API artifact
         run: |
           cd apps/backend/dist
