@@ -58,6 +58,31 @@ jobs:
           # Install based on generated + augmented package.json
           npm install --omit=dev --legacy-peer-deps
 
+      - name: Vendor workspace libs into node_modules (fallback)
+        run: |
+          # Ensure internal workspace packages exist under node_modules for runtime
+          set -e
+          mkdir -p apps/backend/dist/node_modules/@avans-keuzekompas
+          for PKG in domain infrastructure application presentation; do
+            if [ ! -d "apps/backend/dist/node_modules/@avans-keuzekompas/$PKG" ]; then
+              echo "Vendoring backend $PKG"
+              cp -R dist/libs/backend/$PKG apps/backend/dist/node_modules/@avans-keuzekompas/$PKG
+              # Ensure package.json exists
+              if [ ! -f "apps/backend/dist/node_modules/@avans-keuzekompas/$PKG/package.json" ]; then
+                cp libs/backend/$PKG/package.json apps/backend/dist/node_modules/@avans-keuzekompas/$PKG/package.json || true
+              fi
+            fi
+          done
+          for PKG in types utils; do
+            if [ ! -d "apps/backend/dist/node_modules/@avans-keuzekompas/$PKG" ]; then
+              echo "Vendoring shared $PKG"
+              cp -R dist/libs/shared/$PKG apps/backend/dist/node_modules/@avans-keuzekompas/$PKG
+              if [ ! -f "apps/backend/dist/node_modules/@avans-keuzekompas/$PKG/package.json" ]; then
+                cp libs/shared/$PKG/package.json apps/backend/dist/node_modules/@avans-keuzekompas/$PKG/package.json || true
+              fi
+            fi
+          done
+
       - name: Verify runtime modules exist in API dist
         run: |
           cd apps/backend/dist
@@ -71,8 +96,8 @@ jobs:
           cd apps/backend/dist
           # Add both start and start:api for compatibility with App Service settings
           jq '.scripts = (.scripts // {})
-            | .scripts.start = "node -e \"try{require.resolve(\\\"@nestjs/common\\\")}catch(e){process.exit(1)}\" || npm ci --omit=dev --legacy-peer-deps; node main.js"
-            | .scripts["start:api"] = "node -e \"try{require.resolve(\\\"@nestjs/common\\\")}catch(e){process.exit(1)}\" || npm ci --omit=dev --legacy-peer-deps; node main.js"' package.json > package.json.tmp
+            | .scripts.start = "node -e \"try{require.resolve(\\\"@nestjs/common\\\");require.resolve(\\\"@avans-keuzekompas/infrastructure\\\");process.exit(0)}catch(e){process.exit(1)}\" || npm install --omit=dev --legacy-peer-deps; node main.js"
+            | .scripts["start:api"] = "node -e \"try{require.resolve(\\\"@nestjs/common\\\");require.resolve(\\\"@avans-keuzekompas/infrastructure\\\");process.exit(0)}catch(e){process.exit(1)}\" || npm install --omit=dev --legacy-peer-deps; node main.js"' package.json > package.json.tmp
           mv package.json.tmp package.json
 
       - name: Toon package.json en inhoud dist-map (debug)
