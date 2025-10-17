@@ -64,17 +64,22 @@ jobs:
           set -e
           mkdir -p apps/backend/dist/node_modules/@avans-keuzekompas
           for PKG in domain infrastructure application presentation; do
-            if [ ! -d "apps/backend/dist/node_modules/@avans-keuzekompas/$PKG" ]; then
+            if [ -f "apps/backend/dist/node_modules/@avans-keuzekompas/$PKG/package.json" ]; then
+              echo "Backend $PKG already present, skipping vendoring"
+            else
               echo "Vendoring backend $PKG"
+              rm -rf apps/backend/dist/node_modules/@avans-keuzekompas/$PKG
               mkdir -p apps/backend/dist/node_modules/@avans-keuzekompas/$PKG
               cp -R libs/backend/$PKG/dist apps/backend/dist/node_modules/@avans-keuzekompas/$PKG/
-              # Always ensure package.json is present
               cp libs/backend/$PKG/package.json apps/backend/dist/node_modules/@avans-keuzekompas/$PKG/package.json || true
             fi
           done
           for PKG in types utils; do
-            if [ ! -d "apps/backend/dist/node_modules/@avans-keuzekompas/$PKG" ]; then
+            if [ -f "apps/backend/dist/node_modules/@avans-keuzekompas/$PKG/package.json" ]; then
+              echo "Shared $PKG already present, skipping vendoring"
+            else
               echo "Vendoring shared $PKG"
+              rm -rf apps/backend/dist/node_modules/@avans-keuzekompas/$PKG
               mkdir -p apps/backend/dist/node_modules/@avans-keuzekompas/$PKG
               cp -R libs/shared/$PKG/dist apps/backend/dist/node_modules/@avans-keuzekompas/$PKG/
               cp libs/shared/$PKG/package.json apps/backend/dist/node_modules/@avans-keuzekompas/$PKG/package.json || true
