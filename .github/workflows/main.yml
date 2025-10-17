@@ -182,6 +182,11 @@ jobs:
           echo "Resulting package.json:" && cat frontend-deploy/package.json
           # Geen npm ci nodig; .next/standalone bevat node_modules
 
+      - name: Install production deps in Web standalone
+        run: |
+          cd frontend-deploy
+          npm install --omit=dev --legacy-peer-deps
+
       - name: Verify Web runtime modules exist
         run: |
           cd frontend-deploy
