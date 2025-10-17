@@ -41,7 +41,7 @@ jobs:
         with:
           publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
           package: ${{ github.workspace }}/api.zip
-          startup-command: node main.js
+          # startup-command is not supported on Windows or with publish-profile; use web.config instead
 
   build-and-deploy-web:
     needs: build-and-deploy-api
@@ -74,6 +74,32 @@ jobs:
           cp -R apps/frontend/.next/static frontend-deploy/apps/frontend/.next/static
           # Public assets (if referenced directly)
           cp -R apps/frontend/public frontend-deploy/apps/frontend/public || true
+          # Generate web.config for Windows App Service to start the Next.js server via iisnode
+          cat > frontend-deploy/web.config << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <configuration>
+            <system.webServer>
+              <handlers>
+                <add name="iisnode" path="apps/frontend/server.js" verb="*" modules="iisnode" />
+              </handlers>
+              <rewrite>
+                <rules>
+                  <rule name="StaticContent">
+                    <action type="None" />
+                  </rule>
+                  <rule name="DynamicContent">
+                    <conditions>
+                      <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+                    </conditions>
+                    <action type="Rewrite" url="apps/frontend/server.js" />
+                  </rule>
+                </rules>
+              </rewrite>
+              <httpErrors existingResponse="PassThrough" />
+              <iisnode nodeProcessCommandLine="%ProgramFiles%\\nodejs\\node.exe" />
+            </system.webServer>
+          </configuration>
+          EOF
         shell: bash
 
       - name: Zip Web artifact
@@ -85,4 +111,4 @@ jobs:
         with:
           publish-profile: ${{ secrets.AZURE_WEB_PUBLISH_PROFILE }}
           package: ${{ github.workspace }}/web.zip
-          startup-command: node apps/frontend/server.js
+          # startup-command is not supported on Windows or with publish-profile; use web.config instead
