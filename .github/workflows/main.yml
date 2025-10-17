@@ -27,6 +27,9 @@ jobs:
 
       - run: npm ci --legacy-peer-deps
 
+      - name: Build backend libs
+        run: npx nx run-many --target=build --projects=backend-domain,backend-infrastructure,backend-application,backend-presentation --configuration=production --no-cloud
+
       - name: Build API (NestJS)
         run: npx nx run api:build --configuration=production --no-cloud
 
@@ -34,9 +37,8 @@ jobs:
         run: |
           cp package.json apps/backend/dist/
           cp package-lock.json apps/backend/dist/
-          # Kopieer alle gebuildde libs naar de dist folder
           mkdir -p apps/backend/dist/libs
-          cp -r dist/libs/* apps/backend/dist/libs/
+          cp -r dist/libs/* apps/backend/dist/libs/ || true
           cd apps/backend/dist
           npm ci --omit=dev --legacy-peer-deps
 
