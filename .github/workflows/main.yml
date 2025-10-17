@@ -32,8 +32,8 @@ jobs:
 
       - name: Copy runtime dependencies to dist
         run: |
-          cp avans-keuzekompas/avans-keuzekompas/package.json apps/backend/dist/
-          cp avans-keuzekompas/avans-keuzekompas/package-lock.json apps/backend/dist/
+          cp package.json apps/backend/dist/
+          cp package-lock.json apps/backend/dist/
           cd apps/backend/dist
           npm ci --omit=dev --legacy-peer-deps
 
@@ -76,8 +76,8 @@ jobs:
           mkdir -p frontend-deploy/apps/frontend/.next
           cp -R apps/frontend/.next/static frontend-deploy/apps/frontend/.next/static
           cp -R apps/frontend/public frontend-deploy/apps/frontend/public || true
-          cp avans-keuzekompas/avans-keuzekompas/package.json frontend-deploy/
-          cp avans-keuzekompas/avans-keuzekompas/package-lock.json frontend-deploy/
+          cp package.json frontend-deploy/
+          cp package-lock.json frontend-deploy/
           cd frontend-deploy
           npm ci --omit=dev --legacy-peer-deps
 
