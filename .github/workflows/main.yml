@@ -33,22 +33,6 @@ jobs:
       - name: Build API (NestJS)
         run: npx nx run api:build --configuration=production --no-cloud
 
-      - name: Backup generated API package.json (pre-prune)
-        run: |
-          mkdir -p .tmp
-          cp apps/backend/dist/package.json .tmp/api.package.generated.json
-
-      - name: Prune lockfile and copy workspace modules for API
-        run: npx nx run api:prune --no-cloud
-
-      - name: Restore dependencies into pruned package.json
-        run: |
-          # Merge back dependencies from the generated package.json into the pruned one
-          jq -s '.[0] as $pruned | .[1] as $gen | $pruned | .dependencies = ($gen.dependencies // {})' \
-            apps/backend/dist/package.json \
-            .tmp/api.package.generated.json > apps/backend/dist/package.json.tmp
-          mv apps/backend/dist/package.json.tmp apps/backend/dist/package.json
-
       # - name: Copy runtime dependencies and built libs to dist
       #   run: |
       #     cp package.json apps/backend/dist/
@@ -58,19 +42,29 @@ jobs:
       #     cd apps/backend/dist
       #     npm ci --omit=dev --legacy-peer-deps
 
-      - name: Install production deps in API dist (use pruned lockfile)
+      - name: Install production deps in API dist (use generated package.json)
         run: |
           cd apps/backend/dist
           cat package.json
-          # Use the pruned package-lock.json produced by Nx to install workspace modules
-          npm ci --omit=dev --legacy-peer-deps
+          # Add workspace libraries as file: dependencies so npm can install them from the built outputs
+          jq '.dependencies = (.dependencies // {})
+            | .dependencies["@avans-keuzekompas/domain"] = "file:../../dist/libs/backend/domain"
+            | .dependencies["@avans-keuzekompas/infrastructure"] = "file:../../dist/libs/backend/infrastructure"
+            | .dependencies["@avans-keuzekompas/application"] = "file:../../dist/libs/backend/application"
+            | .dependencies["@avans-keuzekompas/presentation"] = "file:../../dist/libs/backend/presentation"
+            | .dependencies["@avans-keuzekompas/types"] = "file:../../dist/libs/shared/types"
+            | .dependencies["@avans-keuzekompas/utils"] = "file:../../dist/libs/shared/utils"' package.json > package.json.tmp
+          mv package.json.tmp package.json
+          # Install based on generated + augmented package.json
+          npm install --omit=dev --legacy-peer-deps
 
       - name: Verify runtime modules exist in API dist
         run: |
           cd apps/backend/dist
-          node -e "require.resolve('@nestjs/common'); require.resolve('@avans-keuzekompas/infrastructure'); console.log('Deps OK')"
+          node -e "require.resolve('@nestjs/common'); require.resolve('@avans-keuzekompas/infrastructure'); require.resolve('@avans-keuzekompas/types'); console.log('Deps OK')"
           node -e "console.log('@nestjs/common version:', require('./node_modules/@nestjs/common/package.json').version)"
           if [ -d node_modules/@avans-keuzekompas/infrastructure ]; then echo "Found @avans-keuzekompas/infrastructure"; else echo "Missing @avans-keuzekompas/infrastructure"; fi
+          if [ -d node_modules/@avans-keuzekompas/types ]; then echo "Found @avans-keuzekompas/types"; else echo "Missing @avans-keuzekompas/types"; fi
 
       - name: Ensure start scripts in API dist package.json
         run: |
