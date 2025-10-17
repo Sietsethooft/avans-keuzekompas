@@ -33,6 +33,9 @@ jobs:
       - name: Build API (NestJS)
         run: npx nx run api:build --configuration=production --no-cloud
 
+      - name: Prune lockfile and copy workspace modules for API
+        run: npx nx run api:prune --no-cloud
+
       # - name: Copy runtime dependencies and built libs to dist
       #   run: |
       #     cp package.json apps/backend/dist/
@@ -42,11 +45,12 @@ jobs:
       #     cd apps/backend/dist
       #     npm ci --omit=dev --legacy-peer-deps
 
-      - name: Install production deps in API dist (use generated package.json)
+      - name: Install production deps in API dist (use pruned lockfile)
         run: |
           cd apps/backend/dist
           cat package.json
-          npm install --omit=dev --legacy-peer-deps
+          # Use the pruned package-lock.json produced by Nx to install workspace modules
+          npm ci --omit=dev --legacy-peer-deps
 
       - name: Ensure start scripts in API dist package.json
         run: |
