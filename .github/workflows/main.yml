@@ -110,6 +110,16 @@ jobs:
           echo "---- inhoud dist ----"
           ls -l apps/backend/dist
 
+      - name: Write API .env from GitHub secrets
+        run: |
+          set -e
+          {
+            echo "MONGODB_URL=${{ secrets.MONGODB_URL }}";
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}";
+            # echo "CORS_ORIGINS=${{ secrets.CORS_ORIGINS }}";
+          } > apps/backend/dist/.env
+          echo "Wrote apps/backend/dist/.env"
+
       - name: Zip API artifact
         run: |
           cd apps/backend/dist
