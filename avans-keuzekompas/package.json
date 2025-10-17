@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "start": "nx run-many --target=serve --projects=api,web --parallel",
-    "start:api": "nx serve api",
+    "start:api": "node main.js",
     "start:web": "nx serve web"
   },
   "private": true,
