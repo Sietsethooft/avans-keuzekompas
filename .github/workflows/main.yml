@@ -168,19 +168,26 @@ jobs:
           # Sanity check: in Nx monorepo staat server.js onder apps/frontend/
           ls -l frontend-deploy/apps/frontend | grep server.js || (echo "apps/frontend/server.js missing" && exit 1)
 
-      - name: Create minimal Web package.json (start script only)
+      - name: Add start script to standalone package.json (preserve deps)
         run: |
-          cat > frontend-deploy/package.json <<'JSON'
-          {
-            "name": "web-standalone",
-            "private": true,
-            "version": "1.0.0",
-            "scripts": {
-              "start": "node apps/frontend/server.js"
-            }
-          }
-          JSON
+          # Gebruik het door Next.js gegenereerde package.json en voeg alleen een start script toe
+          if [ ! -f frontend-deploy/package.json ]; then
+            echo "Expected standalone package.json not found in frontend-deploy" >&2
+            ls -la frontend-deploy || true
+            exit 1
+          fi
+          jq '.scripts = (.scripts // {}) | .scripts.start = "node apps/frontend/server.js"' \
+            frontend-deploy/package.json > frontend-deploy/package.json.tmp
+          mv frontend-deploy/package.json.tmp frontend-deploy/package.json
+          echo "Resulting package.json:" && cat frontend-deploy/package.json
           # Geen npm ci nodig; .next/standalone bevat node_modules
+
+      - name: Verify Web runtime modules exist
+        run: |
+          cd frontend-deploy
+          node -e "require.resolve('next'); require.resolve('react'); console.log('Web deps OK')"
+          if [ -d node_modules/next ]; then echo "Found next"; else echo "Missing next" && exit 1; fi
+          if [ -d node_modules/react ]; then echo "Found react"; else echo "Missing react" && exit 1; fi
 
       - name: Zip Web artifact
         run: |
