@@ -41,6 +41,7 @@ jobs:
         with:
           publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
           package: ${{ github.workspace }}/api.zip
+          startup-command: node main.js
 
   build-and-deploy-web:
     needs: build-and-deploy-api
@@ -60,13 +61,19 @@ jobs:
       - name: Build Web (Next.js)
         run: npx nx run web:build --configuration=production --no-cloud
 
-      - name: Prepare Next.js deploy folder
+      - name: Prepare Next.js deploy folder (standalone)
         run: |
+          set -e
+          rm -rf frontend-deploy
           mkdir -p frontend-deploy
-          cp -R apps/frontend/.next frontend-deploy/.next
-          cp -R apps/frontend/public frontend-deploy/public
-          cp apps/frontend/package.json frontend-deploy/package.json
-          cp apps/frontend/next.config.js frontend-deploy/next.config.js || true
+          # Copy the self-contained server bundle created by `output: 'standalone'`
+          # This will place the monorepo-replicated tree (e.g., apps/frontend/server.js) under frontend-deploy/
+          cp -R apps/frontend/.next/standalone/* frontend-deploy/
+          # Ensure static assets are placed where the server expects them
+          mkdir -p frontend-deploy/apps/frontend/.next
+          cp -R apps/frontend/.next/static frontend-deploy/apps/frontend/.next/static
+          # Public assets (if referenced directly)
+          cp -R apps/frontend/public frontend-deploy/apps/frontend/public || true
         shell: bash
 
       - name: Zip Web artifact
@@ -78,3 +85,4 @@ jobs:
         with:
           publish-profile: ${{ secrets.AZURE_WEB_PUBLISH_PROFILE }}
           package: ${{ github.workspace }}/web.zip
+          startup-command: node apps/frontend/server.js
