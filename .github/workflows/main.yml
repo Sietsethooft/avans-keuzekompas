@@ -56,7 +56,7 @@ jobs:
         run: |
           cd apps/backend/dist
           node -e "require.resolve('@nestjs/common'); require.resolve('@avans-keuzekompas/infrastructure'); console.log('Deps OK')"
-          echo "@nestjs/common version: $(node -p \"require('./node_modules/@nestjs/common/package.json').version\")"
+          node -e "console.log('@nestjs/common version:', require('./node_modules/@nestjs/common/package.json').version)"
           if [ -d node_modules/@avans-keuzekompas/infrastructure ]; then echo "Found @avans-keuzekompas/infrastructure"; else echo "Missing @avans-keuzekompas/infrastructure"; fi
 
       - name: Ensure start scripts in API dist package.json
