@@ -48,12 +48,12 @@ jobs:
           cat package.json
           # Add workspace libraries as file: dependencies so npm can install them from the built outputs
           jq '.dependencies = (.dependencies // {})
-            | .dependencies["@avans-keuzekompas/domain"] = "file:../../dist/libs/backend/domain"
-            | .dependencies["@avans-keuzekompas/infrastructure"] = "file:../../dist/libs/backend/infrastructure"
-            | .dependencies["@avans-keuzekompas/application"] = "file:../../dist/libs/backend/application"
-            | .dependencies["@avans-keuzekompas/presentation"] = "file:../../dist/libs/backend/presentation"
-            | .dependencies["@avans-keuzekompas/types"] = "file:../../dist/libs/shared/types"
-            | .dependencies["@avans-keuzekompas/utils"] = "file:../../dist/libs/shared/utils"' package.json > package.json.tmp
+            | .dependencies["@avans-keuzekompas/domain"] = "file:../../libs/backend/domain"
+            | .dependencies["@avans-keuzekompas/infrastructure"] = "file:../../libs/backend/infrastructure"
+            | .dependencies["@avans-keuzekompas/application"] = "file:../../libs/backend/application"
+            | .dependencies["@avans-keuzekompas/presentation"] = "file:../../libs/backend/presentation"
+            | .dependencies["@avans-keuzekompas/types"] = "file:../../libs/shared/types"
+            | .dependencies["@avans-keuzekompas/utils"] = "file:../../libs/shared/utils"' package.json > package.json.tmp
           mv package.json.tmp package.json
           # Install based on generated + augmented package.json
           npm install --omit=dev --legacy-peer-deps
@@ -66,20 +66,18 @@ jobs:
           for PKG in domain infrastructure application presentation; do
             if [ ! -d "apps/backend/dist/node_modules/@avans-keuzekompas/$PKG" ]; then
               echo "Vendoring backend $PKG"
-              cp -R dist/libs/backend/$PKG apps/backend/dist/node_modules/@avans-keuzekompas/$PKG
-              # Ensure package.json exists
-              if [ ! -f "apps/backend/dist/node_modules/@avans-keuzekompas/$PKG/package.json" ]; then
-                cp libs/backend/$PKG/package.json apps/backend/dist/node_modules/@avans-keuzekompas/$PKG/package.json || true
-              fi
+              mkdir -p apps/backend/dist/node_modules/@avans-keuzekompas/$PKG
+              cp -R libs/backend/$PKG/dist apps/backend/dist/node_modules/@avans-keuzekompas/$PKG/
+              # Always ensure package.json is present
+              cp libs/backend/$PKG/package.json apps/backend/dist/node_modules/@avans-keuzekompas/$PKG/package.json || true
             fi
           done
           for PKG in types utils; do
             if [ ! -d "apps/backend/dist/node_modules/@avans-keuzekompas/$PKG" ]; then
               echo "Vendoring shared $PKG"
-              cp -R dist/libs/shared/$PKG apps/backend/dist/node_modules/@avans-keuzekompas/$PKG
-              if [ ! -f "apps/backend/dist/node_modules/@avans-keuzekompas/$PKG/package.json" ]; then
-                cp libs/shared/$PKG/package.json apps/backend/dist/node_modules/@avans-keuzekompas/$PKG/package.json || true
-              fi
+              mkdir -p apps/backend/dist/node_modules/@avans-keuzekompas/$PKG
+              cp -R libs/shared/$PKG/dist apps/backend/dist/node_modules/@avans-keuzekompas/$PKG/
+              cp libs/shared/$PKG/package.json apps/backend/dist/node_modules/@avans-keuzekompas/$PKG/package.json || true
             fi
           done
 
