@@ -35,7 +35,7 @@ jobs:
 
       - name: Copy runtime dependencies and built libs to dist
         run: |
-          cp package.json apps/backend/dist/
+          jq '.scripts.start="node main.js"' package.json > apps/backend/dist/package.json
           cp package-lock.json apps/backend/dist/
           mkdir -p apps/backend/dist/libs
           cp -r dist/libs/* apps/backend/dist/libs/ || true
