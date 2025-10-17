@@ -30,9 +30,9 @@ jobs:
       - name: Build API (NestJS)
         run: npx nx run api:build --configuration=production --no-cloud
 
-      - name: Copy runtime dependencies to dist
+      - name: Create API package.json with correct start script
         run: |
-          cp package.json apps/backend/dist/
+          jq '.scripts.start="node main.js"' package.json > apps/backend/dist/package.json
           cp package-lock.json apps/backend/dist/
           cd apps/backend/dist
           npm ci --omit=dev --legacy-peer-deps
@@ -76,7 +76,10 @@ jobs:
           mkdir -p frontend-deploy/apps/frontend/.next
           cp -R apps/frontend/.next/static frontend-deploy/apps/frontend/.next/static
           cp -R apps/frontend/public frontend-deploy/apps/frontend/public || true
-          cp package.json frontend-deploy/
+
+      - name: Create Web package.json with correct start script
+        run: |
+          jq '.scripts.start="node server.js"' package.json > frontend-deploy/package.json
           cp package-lock.json frontend-deploy/
           cd frontend-deploy
           npm ci --omit=dev --legacy-peer-deps
