@@ -8,6 +8,10 @@ on:
 env:
   NODE_VERSION: 22
 
+defaults:
+  run:
+    working-directory: avans-keuzekompas
+
 jobs:
   build-and-deploy-api:
     runs-on: ubuntu-latest
@@ -18,7 +22,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          cache: npm
+          cache-dependency-path: avans-keuzekompas/package-lock.json
 
       - run: npm ci --legacy-peer-deps
 
@@ -28,14 +33,14 @@ jobs:
       - name: Zip API artifact
         run: |
           cd apps/backend/dist
-          zip -r ../../../../api.zip .
+          zip -r "$GITHUB_WORKSPACE/api.zip" .
         shell: bash
 
       - name: Deploy API to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
           publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
-          package: api.zip
+          package: ${{ github.workspace }}/api.zip
 
   build-and-deploy-web:
     needs: build-and-deploy-api
@@ -47,7 +52,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          cache: npm
+          cache-dependency-path: avans-keuzekompas/package-lock.json
 
       - run: npm ci --legacy-peer-deps
 
@@ -64,11 +70,11 @@ jobs:
         shell: bash
 
       - name: Zip Web artifact
-        run: zip -r web.zip frontend-deploy
+        run: zip -r "$GITHUB_WORKSPACE/web.zip" frontend-deploy
         shell: bash
 
       - name: Deploy Web to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
           publish-profile: ${{ secrets.AZURE_WEB_PUBLISH_PROFILE }}
-          package: web.zip
+          package: ${{ github.workspace }}/web.zip
