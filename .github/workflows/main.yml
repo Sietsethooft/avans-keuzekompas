@@ -28,7 +28,7 @@ jobs:
       - run: npm ci --legacy-peer-deps
 
       - name: Build API (NestJS)
-        run: npx nx run api:build --configuration=production
+        run: npx nx run api:build --configuration=production --no-cloud
 
       - name: Zip API artifact
         run: |
@@ -58,7 +58,7 @@ jobs:
       - run: npm ci --legacy-peer-deps
 
       - name: Build Web (Next.js)
-        run: npx nx run web:build --configuration=production
+        run: npx nx run web:build --configuration=production --no-cloud
 
       - name: Prepare Next.js deploy folder
         run: |
