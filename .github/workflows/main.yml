@@ -30,16 +30,12 @@ jobs:
       - name: Build API (NestJS)
         run: npx nx run api:build --configuration=production --no-cloud
 
-      - name: Prepare API runtime dependencies (prune + install)
+      - name: Copy runtime dependencies to dist
         run: |
-          # Generate pruned package.json and package-lock.json for dist
-          npx nx run api:prune --no-cloud
-          # Install production dependencies inside dist using the pruned lockfile
+          cp avans-keuzekompas/package.json apps/backend/dist/
+          cp avans-keuzekompas/package-lock.json apps/backend/dist/
           cd apps/backend/dist
           npm ci --omit=dev --legacy-peer-deps
-          # Create a server.js wrapper so Linux App Service auto-starts Node without startup-command
-          printf "require('./main.js');\n" > server.js
-        shell: bash
 
       - name: Zip API artifact
         run: |
@@ -52,7 +48,6 @@ jobs:
         with:
           publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
           package: ${{ github.workspace }}/api.zip
-          # startup-command is not supported on Windows or with publish-profile; use web.config instead
 
   build-and-deploy-web:
     needs: build-and-deploy-api
@@ -77,43 +72,14 @@ jobs:
           set -e
           rm -rf frontend-deploy
           mkdir -p frontend-deploy
-          # Copy the self-contained server bundle created by `output: 'standalone'`
-          # This will place the monorepo-replicated tree (e.g., apps/frontend/server.js) under frontend-deploy/
           cp -R apps/frontend/.next/standalone/* frontend-deploy/
-          # Ensure static assets are placed where the server expects them
           mkdir -p frontend-deploy/apps/frontend/.next
           cp -R apps/frontend/.next/static frontend-deploy/apps/frontend/.next/static
-          # Public assets (if referenced directly)
           cp -R apps/frontend/public frontend-deploy/apps/frontend/public || true
-          # Create a root server.js wrapper so Linux App Service auto-starts Node without startup-command
-          printf "require('./apps/frontend/server.js');\n" > frontend-deploy/server.js
-          # Generate web.config for Windows App Service to start the Next.js server via iisnode (avoid heredoc issues)
-          printf '%s\n' \
-            '<?xml version="1.0" encoding="utf-8"?>' \
-            '<configuration>' \
-            '  <system.webServer>' \
-            '    <handlers>' \
-            '      <add name="iisnode" path="apps/frontend/server.js" verb="*" modules="iisnode" />' \
-            '    </handlers>' \
-            '    <rewrite>' \
-            '      <rules>' \
-            '        <rule name="StaticContent">' \
-            '          <action type="None" />' \
-            '        </rule>' \
-            '        <rule name="DynamicContent">' \
-            '          <conditions>' \
-            '            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />' \
-            '          </conditions>' \
-            '          <action type="Rewrite" url="apps/frontend/server.js" />' \
-            '        </rule>' \
-            '      </rules>' \
-            '    </rewrite>' \
-            '    <httpErrors existingResponse="PassThrough" />' \
-            '    <iisnode nodeProcessCommandLine="%ProgramFiles%\\nodejs\\node.exe" />' \
-            '  </system.webServer>' \
-            '</configuration>' \
-            > frontend-deploy/web.config
-        shell: bash
+          cp avans-keuzekompas/package.json frontend-deploy/
+          cp avans-keuzekompas/package-lock.json frontend-deploy/
+          cd frontend-deploy
+          npm ci --omit=dev --legacy-peer-deps
 
       - name: Zip Web artifact
         run: |
@@ -126,4 +92,3 @@ jobs:
         with:
           publish-profile: ${{ secrets.AZURE_WEB_PUBLISH_PROFILE }}
           package: ${{ github.workspace }}/web.zip
-          # startup-command is not supported on Windows or with publish-profile; use web.config instead
