@@ -30,6 +30,43 @@ jobs:
       - name: Build API (NestJS)
         run: npx nx run api:build --configuration=production --no-cloud
 
+      - name: Prepare API runtime dependencies (prune + install)
+        run: |
+          # Generate pruned package.json and package-lock.json for dist
+          npx nx run api:prune --no-cloud
+          # Install production dependencies inside dist using the pruned lockfile
+          cd apps/backend/dist
+          npm ci --omit=dev --legacy-peer-deps
+          # Ensure web.config exists at dist root (fallback)
+          if [ ! -f web.config ]; then
+            cat > web.config << 'EOF'
+            <?xml version="1.0" encoding="utf-8"?>
+            <configuration>
+              <system.webServer>
+                <handlers>
+                  <add name="iisnode" path="main.js" verb="*" modules="iisnode" />
+                </handlers>
+                <rewrite>
+                  <rules>
+                    <rule name="StaticContent">
+                      <action type="None" />
+                    </rule>
+                    <rule name="DynamicContent">
+                      <conditions>
+                        <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+                      </conditions>
+                      <action type="Rewrite" url="main.js" />
+                    </rule>
+                  </rules>
+                </rewrite>
+                <httpErrors existingResponse="PassThrough" />
+                <iisnode nodeProcessCommandLine="%ProgramFiles%\\nodejs\\node.exe" />
+              </system.webServer>
+            </configuration>
+            EOF
+          fi
+        shell: bash
+
       - name: Zip API artifact
         run: |
           cd apps/backend/dist
@@ -103,7 +140,9 @@ jobs:
         shell: bash
 
       - name: Zip Web artifact
-        run: zip -r "$GITHUB_WORKSPACE/web.zip" frontend-deploy
+        run: |
+          cd frontend-deploy
+          zip -r "$GITHUB_WORKSPACE/web.zip" .
         shell: bash
 
       - name: Deploy Web to Azure Web App
