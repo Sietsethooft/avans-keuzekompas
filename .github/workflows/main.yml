@@ -52,11 +52,20 @@ jobs:
           # Use the pruned package-lock.json produced by Nx to install workspace modules
           npm ci --omit=dev --legacy-peer-deps
 
+      - name: Verify runtime modules exist in API dist
+        run: |
+          cd apps/backend/dist
+          node -e "require.resolve('@nestjs/common'); require.resolve('@avans-keuzekompas/infrastructure'); console.log('Deps OK')"
+          echo "@nestjs/common version: $(node -p \"require('./node_modules/@nestjs/common/package.json').version\")"
+          if [ -d node_modules/@avans-keuzekompas/infrastructure ]; then echo "Found @avans-keuzekompas/infrastructure"; else echo "Missing @avans-keuzekompas/infrastructure"; fi
+
       - name: Ensure start scripts in API dist package.json
         run: |
           cd apps/backend/dist
           # Add both start and start:api for compatibility with App Service settings
-          jq '.scripts = (.scripts // {}) | .scripts.start = "node main.js" | .scripts["start:api"] = "node main.js"' package.json > package.json.tmp
+          jq '.scripts = (.scripts // {})
+            | .scripts.start = "node -e \"try{require.resolve(\\\"@nestjs/common\\\")}catch(e){process.exit(1)}\" || npm ci --omit=dev --legacy-peer-deps; node main.js"
+            | .scripts["start:api"] = "node -e \"try{require.resolve(\\\"@nestjs/common\\\")}catch(e){process.exit(1)}\" || npm ci --omit=dev --legacy-peer-deps; node main.js"' package.json > package.json.tmp
           mv package.json.tmp package.json
 
       - name: Toon package.json en inhoud dist-map (debug)
