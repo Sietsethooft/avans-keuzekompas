@@ -33,15 +33,6 @@ jobs:
       - name: Build API (NestJS)
         run: npx nx run api:build --configuration=production --no-cloud
 
-      # - name: Copy runtime dependencies and built libs to dist
-      #   run: |
-      #     cp package.json apps/backend/dist/
-      #     cp package-lock.json apps/backend/dist/
-      #     mkdir -p apps/backend/dist/libs
-      #     cp -r dist/libs/* apps/backend/dist/libs/ || true
-      #     cd apps/backend/dist
-      #     npm ci --omit=dev --legacy-peer-deps
-
       - name: Install production deps in API dist (use generated package.json)
         run: |
           cd apps/backend/dist
