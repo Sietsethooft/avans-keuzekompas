@@ -5,7 +5,9 @@
   "scripts": {
     "start": "nx run-many --target=serve --projects=api,web --parallel",
     "start:api": "node main.js",
-    "start:web": "nx serve web"
+    "start:web": "nx serve web",
+    "dev:api": "nx serve api",
+    "dev:web": "nx serve web"
   },
   "private": true,
   "devDependencies": {

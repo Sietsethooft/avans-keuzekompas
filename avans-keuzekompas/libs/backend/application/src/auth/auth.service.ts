@@ -17,7 +17,7 @@ export class AuthService {
     if (!user || !(await this.authRepository.comparePassword(password, user.password))) {
       throw new UnauthorizedException('Ongeldige inloggegevens');
     }
-    const access_token = this.jwtHelper.generateToken(user);
+    const access_token = this.jwtHelper.generateToken(user); // Generate JWT token
     return { access_token };
   }
 
@@ -27,7 +27,7 @@ export class AuthService {
     email: string;
     studentNumber: string;
     password: string;
-  }): Promise<{
+  }): Promise<{ // Return minimal user info after registration
     id: string;
     firstName: string;
     lastName: string;
@@ -35,20 +35,20 @@ export class AuthService {
     studentNumber: string;
     role: 'student' | 'admin';
   }> {
+    // Check for existing email and student number
     const existingUser = await this.authRepository.findByEmail(body.email);
     if (existingUser) {
       throw new Error('E-mail bestaat al');
     }
 
-    // Nieuw: controleer uniekheid van studentNumber
     const existingStudent = await this.authRepository.findByStudentNumber(body.studentNumber);
     if (existingStudent) {
       throw new Error('Studentnummer bestaat al');
     }
 
-    const hashedPassword = await bcrypt.hash(body.password, 10);
+    const hashedPassword = await bcrypt.hash(body.password, 10); // Hash password
 
-    const newUser: User = await this.authRepository.createUser({
+    const newUser: User = await this.authRepository.createUser({ // Create new user
       firstName: body.firstName,
       lastName: body.lastName,
       email: body.email,

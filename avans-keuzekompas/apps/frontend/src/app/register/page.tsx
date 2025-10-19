@@ -22,6 +22,7 @@ const RegisterPage: React.FC = () => {
         password: false,
     });
 
+    // Validation functions
     const validateFirstName = (value: string) => !value ? 'Graag een voornaam invullen' : '';
     const validateLastName = (value: string) => !value ? 'Graag een achternaam invullen' : '';
     const validateEmail = (value: string) => {
@@ -50,6 +51,7 @@ const RegisterPage: React.FC = () => {
             password: true,
         });
 
+        // Validate all fields
         const errors = [
             validateFirstName(firstName),
             validateLastName(lastName),
@@ -58,11 +60,13 @@ const RegisterPage: React.FC = () => {
             validatePassword(password),
         ].filter(Boolean);
 
+        // If there are validation errors, show the first one
         if (errors.length > 0) {
             setError(errors[0]);
             return;
         }
 
+        // Submit registration data to API
         try {
             const url = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`;
             const res = await fetch(url, {

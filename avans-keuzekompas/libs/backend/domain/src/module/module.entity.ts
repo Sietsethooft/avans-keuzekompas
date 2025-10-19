@@ -1,1 +1,1 @@
-export type { Module } from '@avans-keuzekompas/types';
+export type { Module } from '@avans-keuzekompas/types'; // Re-exporting Module type from shared types package
