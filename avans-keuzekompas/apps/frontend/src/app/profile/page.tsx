@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { User } from '@avans-keuzekompas/types';
 import Swal from "sweetalert2";
-import styles from './profile.css';
 import "./profile.css";
 
 // Helper for decoding JWT
