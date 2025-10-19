@@ -315,7 +315,7 @@ export default function ElectiveDetailPage() {
                 type="button"
                 onClick={handleEdit}
                 title="Bewerk keuzemodule"
-                className="btn btn-outline-primary avansBtn avansFocus d-inline-flex align-items-center"
+                className={`btn btn-outline-info ${styles.avansBtn} ${styles.editBtn} d-inline-flex align-items-center`}
               >
                 <i className="bi bi-pencil me-2" aria-hidden="true" />
                 Bewerk
@@ -324,7 +324,7 @@ export default function ElectiveDetailPage() {
                 type="button"
                 onClick={handleDelete}
                 title="Verwijder keuzemodule"
-                className="btn btn-outline-danger avansBtn avansFocus d-inline-flex align-items-center"
+                className={`btn btn-outline-danger ${styles.avansBtn} avansFocus d-inline-flex align-items-center`}
               >
                 <i className="bi bi-trash me-2" aria-hidden="true" />
                 Verwijder
