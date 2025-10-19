@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import type { Module } from "@avans-keuzekompas/types";
 import styles from './page.module.css';
+import Swal from 'sweetalert2';
 
 type JwtPayload = { sub: string; role?: string; exp?: number; iat?: number };
 
@@ -197,9 +198,20 @@ export default function ElectiveDetailPage() {
 
   const handleDelete = async () => {
     if (!id) return;
-    if (!isAdmin) return; // extra guard
-    const confirmed = confirm('Weet je zeker dat je deze keuzemodule wilt verwijderen?');
-    if (!confirmed) return;
+    if (!isAdmin) return;
+
+    const result = await Swal.fire({
+      title: 'Weet je zeker dat je deze keuzemodule wilt verwijderen?',
+      text: 'Deze actie kan niet ongedaan worden gemaakt!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Ja, verwijderen',
+      cancelButtonText: 'Annuleren',
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+    });
+
+    if (!result.isConfirmed) return;
 
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
     if (!token) {
@@ -215,11 +227,29 @@ export default function ElectiveDetailPage() {
         },
       });
       const data = await res.json().catch(() => null);
-      if (!res.ok) throw new Error(data?.message || 'Verwijderen mislukt');
-      alert('Keuzemodule verwijderd.');
+      if (!res.ok) {
+        await Swal.fire({
+          title: 'Verwijderen mislukt',
+          text: data?.message || 'Er ging iets mis bij het verwijderen.',
+          icon: 'error',
+          confirmButtonColor: '#dc3545',
+        });
+        return;
+      }
+      await Swal.fire({
+        title: 'Module verwijderd',
+        text: 'De keuzemodule is succesvol verwijderd.',
+        icon: 'success',
+        confirmButtonColor: '#dc3545',
+      });
       router.push('/electives');
     } catch (e: any) {
-      alert(e?.message || 'Er ging iets mis bij verwijderen.');
+      await Swal.fire({
+        title: 'Fout',
+        text: e?.message || 'Er ging iets mis bij verwijderen.',
+        icon: 'error',
+        confirmButtonColor: '#dc3545',
+      });
     }
   };
 
