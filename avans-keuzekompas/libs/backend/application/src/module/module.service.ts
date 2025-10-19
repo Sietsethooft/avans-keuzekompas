@@ -76,4 +76,20 @@ export class ModuleService {
       throw e;
     }
   }
+
+  async createModule(moduleData: Module): Promise<Module> {
+    const existing = await this.moduleRepository.findOne({ title: moduleData.title, location: moduleData.location });
+    if (existing) {
+      throw new Error('Module met deze titel en locatie bestaat al');
+    }
+    try {
+      return await this.moduleRepository.create(moduleData);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (e: any) {
+      if (e && (e.code === 11000 || e?.name === 'MongoServerError')) {
+        throw new Error('Module met deze titel en locatie bestaat al');
+      }
+      throw e;
+    }
+  }
 }

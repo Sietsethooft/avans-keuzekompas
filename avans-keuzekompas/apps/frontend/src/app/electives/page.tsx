@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
@@ -22,6 +24,7 @@ export default function ElectivesPage() {
   const [modules, setModules] = useState<ModuleItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
   // UI state
   const [search, setSearch] = useState('');
@@ -81,6 +84,48 @@ export default function ElectivesPage() {
 
     fetchModules();
   }, [router]);
+
+  // Admin detectie (zoals in detailpagina)
+  type JwtPayload = { sub: string; role?: string; exp?: number; iat?: number };
+  function decodeJwt<T>(token: string): T | null {
+    try {
+      const base64Url = token.split('.')[1];
+      if (!base64Url) return null;
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload) as T;
+    } catch {
+      return null;
+    }
+  }
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const setAdminFromToken = () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setIsAdmin(false);
+        return;
+      }
+      const payload = decodeJwt<JwtPayload>(token);
+      const isExpired = payload?.exp ? Date.now() / 1000 >= payload.exp : false;
+      setIsAdmin(!isExpired && payload?.role === 'admin');
+    };
+
+    setAdminFromToken();
+
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'token') setAdminFromToken();
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
 
   // Favorieten inladen uit API profiel
   useEffect(() => {
@@ -208,7 +253,7 @@ export default function ElectivesPage() {
 
   return (
     <div className="container py-3">
-      <div className="d-flex flex-column flex-lg-row gap-3 mb-4">
+      <div className="d-flex flex-column flex-lg-row gap-3 mb-4 align-items-stretch align-items-lg-end">
         {/* Search */}
         <div className="flex-grow-1">
           <label htmlFor="search" className="form-label fw-semibold">
@@ -272,6 +317,21 @@ export default function ElectivesPage() {
             <option value="EN">Engels (EN)</option>
           </select>
         </div>
+
+        {isAdmin && (
+          <div style={{ minWidth: 220 }} className="d-grid">
+            {/* Spacer label to align bottom on lg, hidden on small */}
+            <label className="form-label fw-semibold d-none d-lg-block">&nbsp;</label>
+            <button
+              type="button"
+              className={`btn btn-danger ${styles.avansBtn}`}
+              onClick={() => router.push('/electives/create')}
+            >
+              <i className="bi bi-plus-lg me-2" />
+              Creëer module
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Result header */}

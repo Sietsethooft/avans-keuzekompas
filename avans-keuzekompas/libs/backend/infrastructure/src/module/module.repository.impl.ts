@@ -27,4 +27,9 @@ export class MongooseModuleRepository {
   async updateById(id: string, updateData: Partial<Module>): Promise<Module | null> {
     return this.moduleModel.findByIdAndUpdate(id, updateData, { new: true }).exec();
   }
+
+  async create(moduleData: Partial<DomainModule>): Promise<Module> {
+    const createdModule = new this.moduleModel(moduleData);
+    return createdModule.save();
+  }
 }

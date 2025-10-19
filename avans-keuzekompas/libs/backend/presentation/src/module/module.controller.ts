@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Put, Logger, Param, UseGuards, Req, Delete } from '@nestjs/common';
+import { Body, Controller, Get, Put, Logger, Param, UseGuards, Req, Delete, Post } from '@nestjs/common';
 import { ModuleService } from '@avans-keuzekompas/application';
 import { jsonResponse } from '@avans-keuzekompas/utils';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
@@ -99,6 +99,23 @@ export class ModuleController {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update module';
       Logger.log('Update module failed: ' + errorMessage);
       return jsonResponse(500, errorMessage, null);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard, OwnerOrAdminGuard)
+  @Post()
+  async createModule(@Body() moduleData: DomainModule) {
+    Logger.log('Create module attempt');
+    try {
+      const created = await this.moduleService.createModule(moduleData);
+      Logger.log('Create module successful');
+      return jsonResponse(201, 'Module created successfully', created);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create module';
+      Logger.log('Create module failed: ' + errorMessage);
+      // If the service throws the duplicate message, return 409 Conflict; otherwise 500
+      const status = errorMessage.includes('bestaat al') ? 409 : 500;
+      return jsonResponse(status, errorMessage, null);
     }
   }
 }
