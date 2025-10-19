@@ -52,6 +52,7 @@ export class ModuleService {
 
   async deleteModuleById(id: string): Promise<void> {
     await this.moduleRepository.deleteById(id);
+    await this.userRepository.removeFavoriteFromAllUsers(id);
   }
 
   async updateModuleById(id: string, update: Partial<Module>): Promise<Module | null> {

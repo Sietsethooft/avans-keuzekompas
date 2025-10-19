@@ -80,6 +80,7 @@ export class ModuleController {
       return jsonResponse(500, errorMessage, null);
     }
   }
+  
   @UseGuards(JwtAuthGuard, OwnerOrAdminGuard)
   @Put(':id')
   async updateModuleById(

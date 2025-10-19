@@ -6,4 +6,5 @@ export abstract class UserRepository {
   abstract deleteById(id: string): Promise<void>;
   abstract updateById(id: string, updateData: Partial<User>): Promise<User | null>;
   abstract findByStudentNumber(studentNumber: string): Promise<User | null>;
+  abstract removeFavoriteFromAllUsers(moduleId: string): Promise<void>;
 }
