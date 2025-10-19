@@ -1,6 +1,6 @@
 import { Module } from './module.entity.js';
 
-export abstract class ModuleRepository {
+export abstract class ModuleRepository { // Abstract class, so it can be extended by concrete implementations
     abstract getAll(): Promise<Module[]>;
     abstract getById(id: string): Promise<Module | null>;
     abstract deleteById(id: string): Promise<void>;

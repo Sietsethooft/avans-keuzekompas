@@ -31,7 +31,7 @@ export class MongooseUserRepository {
     const id = new Types.ObjectId(moduleId);
     await this.userModel.updateMany(
       { favorites: id },
-      { $pull: { favorites: id } }
+      { $pull: { favorites: id } } // Pull the moduleId from the favorites array
     ).exec();
   }
 }

@@ -147,7 +147,7 @@ export class SeedService {
         lastName: 'Jansen',
         email: 'jan.jansen@student.avans.nl',
         studentNumber: '123456',
-        password: 'password123', // In productie altijd hashen!
+        password: 'password123',
         role: 'student',
         favorites: [],
       },

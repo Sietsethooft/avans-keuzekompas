@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import type { Module } from "@avans-keuzekompas/types";
 import styles from './page.module.css';
@@ -25,7 +25,7 @@ function decodeJwt<T>(token: string): T | null {
   }
 }
 
-// Kleine helper om API JSON te halen (ondersteunt jouw jsonResponse envelope)
+// Fetch wrapper for JSON APIs with error handling and envelope support
 async function fetchJson<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
   const res = await fetch(input, init);
   const data = await res.json().catch(() => null);
@@ -41,18 +41,16 @@ export default function ElectiveDetailPage() {
   const id = params?.id;
   const router = useRouter();
 
-  // Tri-state: undefined => nog aan het laden, null => niet gevonden, Module => geladen
-  const [mod, setMod] = useState<Module | null | undefined>(undefined);
+  const [mod, setMod] = useState<Module | null | undefined>(undefined); // mod stands for module
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
 
-  const shareUrl = useMemo(() => (typeof window === 'undefined' ? '' : window.location.href), []);
-
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    // Function to set admin status from token
     const setAdminFromToken = () => {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -81,8 +79,10 @@ export default function ElectiveDetailPage() {
     }
     if (!id) return;
 
+    // Abort controller for fetch cancellation
     const controller = new AbortController();
     (async () => {
+      // API call to fetch module details
       try {
         setLoading(true);
         setError(null);
@@ -119,6 +119,7 @@ export default function ElectiveDetailPage() {
     let cancelled = false;
 
     (async () => {
+      // API call to fetch user profile and favorites
       try {
         const url = `${process.env.NEXT_PUBLIC_API_URL}/api/user/profile`;
         const me = await fetchJson<{ favorites?: string[] }>(url, {
@@ -133,7 +134,7 @@ export default function ElectiveDetailPage() {
           return;
         }
       } catch {
-        // Fallback: lokale cache gebruiken
+        // noop
       }
       if (!cancelled) {
         setIsFavorite(false);
@@ -162,13 +163,12 @@ export default function ElectiveDetailPage() {
         },
       });
 
-      // status bepalen vanuit API-respons
+      // Update state based on response
       if (typeof result?.isFavorite === 'boolean') {
         setIsFavorite(result.isFavorite);
       } else if (Array.isArray(result?.favorites)) {
         setIsFavorite(result.favorites.map(String).includes(String(id)));
       } else {
-        // fallback: optimistisch
         setIsFavorite((prev) => !prev);
       }
     } catch (e: any) {
@@ -177,17 +177,19 @@ export default function ElectiveDetailPage() {
     }
   };
 
+  // Share functionality
   const handleShare = async () => {
     const title = mod?.title ?? 'Keuzemodule';
     const text = 'Check deze keuzemodule:';
+    const url = typeof window !== 'undefined' ? window.location.href : '';
     try {
       if (navigator.share) {
-        await navigator.share({ title, text, url: shareUrl });
+        await navigator.share({ title, text, url });
       } else if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(shareUrl);
+        await navigator.clipboard.writeText(url);
         alert('Link gekopieerd naar klembord!');
       } else {
-        prompt('Kopieer de link:', shareUrl);
+        prompt('Kopieer de link:', url);
       }
     } catch { /* noop */ }
   };
@@ -202,6 +204,7 @@ export default function ElectiveDetailPage() {
     if (!id) return;
     if (!isAdmin) return;
 
+    // Confirmation dialog
     const result = await Swal.fire({
       title: 'Weet je zeker dat je deze keuzemodule wilt verwijderen?',
       text: 'Deze actie kan niet ongedaan worden gemaakt!',
@@ -221,6 +224,7 @@ export default function ElectiveDetailPage() {
       return;
     }
 
+    // API call to delete module
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/module/${id}`, {
         method: 'DELETE',
@@ -228,6 +232,7 @@ export default function ElectiveDetailPage() {
           Authorization: `Bearer ${token}`,
         },
       });
+      // Handle response
       const data = await res.json().catch(() => null);
       if (!res.ok) {
         await Swal.fire({
@@ -238,6 +243,7 @@ export default function ElectiveDetailPage() {
         });
         return;
       }
+      // Success dialog
       await Swal.fire({
         title: 'Module verwijderd',
         text: 'De keuzemodule is succesvol verwijderd.',
@@ -255,6 +261,7 @@ export default function ElectiveDetailPage() {
     }
   };
 
+  // Loading and error states
   if (loading || typeof mod === 'undefined') {
     return (
       <div className="d-flex justify-content-center align-items-center py-5">

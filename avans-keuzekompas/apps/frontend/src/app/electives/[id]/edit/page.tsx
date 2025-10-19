@@ -25,6 +25,7 @@ const UpdateModulePage: React.FC = () => {
     duration: "",
     offeredBy: "",
   });
+  // Touched state for validation
   const [touched, setTouched] = useState({
     title: false,
     description: false,
@@ -44,6 +45,7 @@ const UpdateModulePage: React.FC = () => {
       return;
     }
     if (!id) return;
+    // Fetch module details
     const fetchModule = async () => {
       try {
         const url = `${process.env.NEXT_PUBLIC_API_URL}/api/module/${id}`;
@@ -62,6 +64,7 @@ const UpdateModulePage: React.FC = () => {
         }
         const apiMod = data.data;
         setMod(apiMod);
+        // Pre-fill form with existing data
         setForm({
           title: apiMod.title ?? "",
           description: apiMod.description ?? "",
@@ -82,7 +85,7 @@ const UpdateModulePage: React.FC = () => {
     fetchModule();
   }, [id, router]);
 
-  // Validatie functies
+  // Validation functions
   const validateTitle = (v: string) => (!v ? "Graag een titel invullen" : "");
   const validateLocation = (v: string) => (!v ? "Graag een locatie invullen" : "");
   const validatePeriod = (v: string) => (!periods.includes(v) ? "Kies een geldige periode" : "");
@@ -109,6 +112,7 @@ const UpdateModulePage: React.FC = () => {
 
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
+  // Mark all fields as touched to show validation errors
   setTouched({
     title: true,
     description: true,
@@ -131,12 +135,14 @@ const handleSubmit = async (e: React.FormEvent) => {
     setError(errors[0]);
     return;
   }
+  // Proceed with update
   try {
     const token = localStorage.getItem("token");
     if (!token || !id) {
       setError("Niet ingelogd.");
       return;
     }
+    // API call to update module
     const url = `${process.env.NEXT_PUBLIC_API_URL}/api/module/${id}`;
     const res = await fetch(url, {
       method: "PUT",
@@ -156,6 +162,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         offeredBy: form.offeredBy,
       }),
     });
+    // Handle response
     const data = await res.json();
     if (!res.ok || data.status !== 200) {
       setError(data.message || "Bijwerken mislukt.");
@@ -172,7 +179,8 @@ const handleSubmit = async (e: React.FormEvent) => {
     setError("Er ging iets mis met bijwerken.");
   }
 };
-
+  
+// Loading state
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">

@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import styles from './electives.module.css';
 import type { Module as ModuleItem } from "@avans-keuzekompas/types";
 
-// Kleine helper om JSON te fetchen (ondersteunt jouw jsonResponse envelope)
+// Fetch helper that unwraps Json envelopes if needed
 async function fetchJson<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
   const res = await fetch(input, init);
   const data = await res.json().catch(() => null);
@@ -41,6 +41,7 @@ export default function ElectivesPage() {
       return;
     }
 
+    // Fetch modules from API
     const fetchModules = async () => {
       try {
         setLoading(true);
@@ -55,12 +56,14 @@ export default function ElectivesPage() {
         });
 
         const data = await res.json().catch(() => null);
+        // Validate response
         if (!res.ok || !data || data.status !== 200 || !Array.isArray(data.data)) {
           setError(data?.message || 'Kon modules niet ophalen.');
           setLoading(false);
           return;
         }
 
+        // Map to ModuleItem[]
         const mapped: ModuleItem[] = data.data.map((m: any) => ({
           id: m._id || m.id,
           title: m.title,
@@ -85,7 +88,7 @@ export default function ElectivesPage() {
     fetchModules();
   }, [router]);
 
-  // Admin detectie (zoals in detailpagina)
+  // Admin detection via JWT
   type JwtPayload = { sub: string; role?: string; exp?: number; iat?: number };
   function decodeJwt<T>(token: string): T | null {
     try {
@@ -107,6 +110,7 @@ export default function ElectivesPage() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    // Initial check + listen for changes
     const setAdminFromToken = () => {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -127,11 +131,12 @@ export default function ElectivesPage() {
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  // Favorieten inladen uit API profiel
+  // Loading favorites from API
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
     if (!token) return;
 
+    // Fetch user profile
     let cancelled = false;
     (async () => {
       try {
@@ -147,7 +152,7 @@ export default function ElectivesPage() {
           setFavorites(new Set(me.favorites.map(String)));
         }
       } catch {
-        // optioneel: fallback op lokale cache, hier overslaan
+        // noop
       }
     })();
 
@@ -179,7 +184,7 @@ export default function ElectivesPage() {
     });
   }, [modules, search, period, location, language]);
 
-  // Toggle via API (optimistisch)
+  // Toggle via API
   const toggleFavorite = async (id: string) => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
     if (!token) {
@@ -187,13 +192,14 @@ export default function ElectivesPage() {
       return;
     }
 
-    // Optimistisch updaten
+    // Update local state optimistically
     setFavorites((prev) => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
 
+    // API call favorite toggle
     try {
       const url = `${process.env.NEXT_PUBLIC_API_URL}/api/module/favorite/${encodeURIComponent(String(id))}`;
       const result = await fetchJson<{ isFavorite?: boolean; favorites?: string[] }>(url, {
@@ -221,7 +227,7 @@ export default function ElectivesPage() {
         });
       }
     } catch (e: any) {
-      // Revert bij fout
+      // Revert on error
       setFavorites((prev) => {
         const next = new Set(prev);
         next.has(id) ? next.delete(id) : next.add(id);
@@ -231,10 +237,12 @@ export default function ElectivesPage() {
     }
   };
 
+  // Navigation
   const onMoreInfo = (id: string) => {
     router.push(`/electives/${id}`);
   };
 
+  // Loading/rendering
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center py-5">

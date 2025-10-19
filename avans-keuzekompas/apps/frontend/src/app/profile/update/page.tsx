@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -61,11 +62,13 @@ const UpdateProfilePage: React.FC = () => {
       localStorage.getItem("userId") ||
       null;
 
+    // Redirect to login if no userId found
     if (!userId) {
       router.replace("/login");
       return;
     }
 
+    // Fetch user details from API
     const fetchUser = async () => {
       try {
         const url = `${process.env.NEXT_PUBLIC_API_URL}/api/user/${userId}`;
@@ -82,6 +85,7 @@ const UpdateProfilePage: React.FC = () => {
           setLoading(false);
           return;
         }
+        // Map API user to frontend User type
         const apiUser = data.data;
         const mappedUser: User = {
           id: apiUser._id || apiUser.id || apiUser.userId,
@@ -110,7 +114,7 @@ const UpdateProfilePage: React.FC = () => {
     fetchUser();
   }, [router]);
 
-  // Validatie functies
+  // Validation functions
   const validateFirstName = (v: string) => (!v ? "Graag een voornaam invullen" : "");
   const validateLastName = (v: string) => (!v ? "Graag een achternaam invullen" : "");
   const validateEmail = (v: string) => {
@@ -130,7 +134,7 @@ const UpdateProfilePage: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    if (error) setError(""); // reset globale fout bij wijzigingen
+    if (error) setError(""); // clear general error on input change
   };
 
   const handleBlur = (field: keyof typeof touched) => {
@@ -156,10 +160,11 @@ const UpdateProfilePage: React.FC = () => {
     ].filter(Boolean) as string[];
 
     if (errors.length > 0) {
-      setError(errors[0]); // toon validatie-bericht onder de velden
+      setError(errors[0]); // show validation message under fields
       return;
     }
 
+    // Submit updated data to API
     try {
       const token = localStorage.getItem("token");
       if (!token || !user) {

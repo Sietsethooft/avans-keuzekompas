@@ -13,6 +13,7 @@ const LoginPage: React.FC = () => {
     const [emailTouched, setEmailTouched] = useState(false);
     const [passwordTouched, setPasswordTouched] = useState(false);
 
+    // Validation functions
     const validateEmail = (value: string) => {
         if (!value) return 'Graag een geldige e-mail invullen';
         if (!avansEmailRegex.test(value)) return 'Deze e-mail is ongeldig, volg dit format: naam@student.avans.nl';
@@ -29,6 +30,7 @@ const LoginPage: React.FC = () => {
         setEmailTouched(true);
         setPasswordTouched(true);
 
+        // Validate inputs
         const emailError = validateEmail(email);
         const passwordError = validatePassword(password);
 
@@ -37,6 +39,7 @@ const LoginPage: React.FC = () => {
             return;
         }
 
+        // try to login
         try {
             const url = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`;
             const res = await fetch(url, {
@@ -45,6 +48,7 @@ const LoginPage: React.FC = () => {
                 body: JSON.stringify({ email, password }),
             });
 
+            // Parse response
             const data: JsonResponse<{ access_token: string }> = await res.json();
 
             if (!res.ok || data.status !== 200 || !data.data?.access_token) {
@@ -52,6 +56,7 @@ const LoginPage: React.FC = () => {
                 return;
             }
 
+            // Store token and redirect
             localStorage.setItem('token', data.data.access_token);
             router.push('/');
         } catch (err) {

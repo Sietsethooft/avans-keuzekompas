@@ -23,6 +23,7 @@ function decodeJwt<T>(token: string): T | null {
   }
 }
 
+// Components
 const periods = ["P1", "P2", "P3", "P4"] as const;
 const languages = ["NL", "EN"] as const;
 
@@ -43,6 +44,7 @@ const CreateElectivePage: React.FC = () => {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // Form state
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -55,6 +57,7 @@ const CreateElectivePage: React.FC = () => {
     offeredBy: "",
   });
 
+  // Touched state for validation
   const [touched, setTouched] = useState({
     title: false,
     description: false,
@@ -83,7 +86,7 @@ const CreateElectivePage: React.FC = () => {
     setAuthorized(true);
   }, [router]);
 
-  // Validaties
+  // Validations
   const validateTitle = (v: string) => (!v ? "Graag een titel invullen" : "");
   const validateLocation = (v: string) => (!v ? "Graag een locatie invullen" : "");
   const validatePeriod = (v: string) => (!isPeriod(v) ? "Kies een geldige periode" : "");
@@ -121,6 +124,7 @@ const CreateElectivePage: React.FC = () => {
     return null;
   };
 
+  // Form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setTouched({
@@ -146,7 +150,7 @@ const CreateElectivePage: React.FC = () => {
       setError(errors[0]);
       return;
     }
-
+    
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -155,6 +159,7 @@ const CreateElectivePage: React.FC = () => {
       }
       setSubmitting(true);
 
+      // API call to create elective
       const url = `${process.env.NEXT_PUBLIC_API_URL}/api/module`;
       const res = await fetch(url, {
         method: "POST",
@@ -175,11 +180,13 @@ const CreateElectivePage: React.FC = () => {
         }),
       });
 
+      // Response handling
       const data: unknown = await res.json().catch(() => null);
       const statusField =
         data && typeof data === "object" && data !== null && "status" in data
           ? (data as Record<string, unknown>).status
           : undefined;
+          // Check for errors
       if (!res.ok || !data || (typeof statusField === "number" && statusField >= 300)) {
         const obj = data && typeof data === "object" ? (data as Record<string, unknown>) : null;
         let message: string | undefined;
@@ -191,6 +198,7 @@ const CreateElectivePage: React.FC = () => {
       }
 
       const createdId = extractCreatedId(data);
+      // Success alert and redirect
       await Swal.fire({
         title: "Module aangemaakt",
         text: "De keuzemodule is succesvol aangemaakt.",
@@ -206,6 +214,7 @@ const CreateElectivePage: React.FC = () => {
     }
   };
 
+  // Loading state
   if (authorized === null) {
     return (
       <div className="d-flex justify-content-center align-items-center py-5">

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Body, Controller, Get, Put, Logger, Param, UseGuards, Req, Delete, Post } from '@nestjs/common';
 import { ModuleService } from '@avans-keuzekompas/application';
 import { jsonResponse } from '@avans-keuzekompas/utils';
@@ -45,7 +46,6 @@ export class ModuleController {
 
   @UseGuards(JwtAuthGuard)
   @Put('favorite/:id')
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async toggleFavoriteModule(@Param('id') moduleId: string, @Req() req: any) {
     Logger.log('Toggle favorite module attempt');
     try {
@@ -115,7 +115,7 @@ export class ModuleController {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create module';
       Logger.log('Create module failed: ' + errorMessage);
       // If the service throws the duplicate message, return 409 Conflict; otherwise 500
-      const status = errorMessage.includes('bestaat al') ? 409 : 500;
+      const status = errorMessage.includes('Deze module bestaat al') ? 409 : 500;
       return jsonResponse(status, errorMessage, null);
     }
   }

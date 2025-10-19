@@ -36,6 +36,7 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [favoriteModules, setFavoriteModules] = useState<FavoriteModule[]>([]);
 
+  // Remove account
   const handleDeleteAccount = async () => {
     const result = await Swal.fire({
       title: 'Weet je zeker dat je je account wilt verwijderen?',
@@ -49,7 +50,8 @@ export default function ProfilePage() {
     });
 
     if (!result.isConfirmed || !user) return;
-
+    
+    // API call to delete account
     try {
       const url = `${process.env.NEXT_PUBLIC_API_URL}/api/user/${user.id}`;
       const token = localStorage.getItem('token');
@@ -61,6 +63,7 @@ export default function ProfilePage() {
         },
       });
 
+      // Checkup alerts
       if (res.ok) {
         await Swal.fire({
           title: 'Account verwijderd',
@@ -111,6 +114,7 @@ export default function ProfilePage() {
       return;
     }
 
+    // API call to fetch the user
     const fetchUser = async () => {
       const url = `${process.env.NEXT_PUBLIC_API_URL}/api/user/profile`;
       try {
@@ -136,6 +140,7 @@ export default function ProfilePage() {
           return;
         }
 
+        // Map API user to frontend User type
         const apiUser = data.data;
         const mappedUser: User = {
           id: apiUser._id || apiUser.id || apiUser.userId,
@@ -160,7 +165,7 @@ export default function ProfilePage() {
     fetchUser();
   }, [router]);
 
-  // Haal module-titels op
+  // Get titles of favorite modules
   useEffect(() => {
     const fetchTitles = async () => {
       const token = localStorage.getItem("token");
@@ -196,7 +201,7 @@ export default function ProfilePage() {
     fetchTitles();
   }, [user]);
 
-  // Favoriet verwijderen
+  // Remove favorite(s)
   const handleRemoveFavorite = async (id: string) => {
     const token = localStorage.getItem("token");
     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/module/favorite/${id}`, {
@@ -212,6 +217,7 @@ export default function ProfilePage() {
     );
   };
 
+  // Loading state
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">

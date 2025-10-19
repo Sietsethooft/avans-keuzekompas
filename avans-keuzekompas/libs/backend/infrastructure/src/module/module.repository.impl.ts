@@ -30,6 +30,6 @@ export class MongooseModuleRepository {
 
   async create(moduleData: Partial<DomainModule>): Promise<Module> {
     const createdModule = new this.moduleModel(moduleData);
-    return createdModule.save();
+    return createdModule.save(); // Save and not insertOne, to trigger mongoose middleware
   }
 }
