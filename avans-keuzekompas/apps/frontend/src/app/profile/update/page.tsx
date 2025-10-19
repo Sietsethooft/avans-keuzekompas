@@ -297,7 +297,6 @@ const UpdateProfilePage: React.FC = () => {
           {error && <div className="alert alert-danger mb-3">{error}</div>}
 
           <div className="d-flex justify-content-between">
-            <button type="submit" className="btn btn-primary">Opslaan</button>
             <button
               type="button"
               className="btn btn-outline-secondary"
@@ -305,6 +304,7 @@ const UpdateProfilePage: React.FC = () => {
             >
               Annuleren
             </button>
+            <button type="submit" className="btn btn-primary">Opslaan</button>
           </div>
         </form>
       </div>

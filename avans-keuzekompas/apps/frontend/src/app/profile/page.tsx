@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { User } from '@avans-keuzekompas/types';
 import Swal from "sweetalert2";
+import styles from './profile.css';
 import "./profile.css";
 
 // Helper for decoding JWT
@@ -279,8 +281,8 @@ export default function ProfilePage() {
               </div>
               <div className="card-body">
                 <div className="d-grid gap-2">
-                  <button className="btn btn-danger-soft w-100" onClick={handleDeleteAccount}>
-                    <i className="bi bi-trash3 me-2"></i> Account verwijderen
+                  <button className="btn btn-danger-soft w-100 avansBtn" onClick={handleDeleteAccount}>
+                    <i className="bi bi-trash3 me-2 avansBtn"></i> Account verwijderen
                   </button>
                   <button
                     className="btn btn-outline-secondary w-100"
@@ -347,7 +349,7 @@ export default function ProfilePage() {
                     Voeg modules toe aan je favorieten om ze hier snel terug te vinden.
                   </p>
                   <button
-                    className="btn btn-outline-danger btn-sm"
+                    className="btn btn-outline-danger btn-sm avansBtn"
                     onClick={() => router.push("/electives")}
                   >
                     <i className="bi bi-search me-1"></i> Ontdek modules

@@ -100,7 +100,6 @@ const LoginPage: React.FC = () => {
                     </div>
                     {error && <div className="alert alert-danger mb-3">{error}</div>}
                     <div className="d-flex justify-content-between">
-                        <button type="submit" className="btn btn-primary">Login</button>
                         <button
                             type="button"
                             className="btn btn-outline-secondary"
@@ -108,6 +107,7 @@ const LoginPage: React.FC = () => {
                         >
                             Registreren
                         </button>
+                        <button type="submit" className="btn btn-primary">Login</button>
                     </div>
                 </form>
             </div>
