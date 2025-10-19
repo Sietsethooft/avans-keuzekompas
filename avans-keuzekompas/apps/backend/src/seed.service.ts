@@ -21,7 +21,7 @@ export class SeedService {
       {
         title: 'Persoonlijke Effectiviteit & Growth Mindset',
         description:
-          'Versterk je studie- en werkhouding met bewezen mindset-principes. Je leert doelen stellen, reflecteren, feedback benutten en omgaan met tegenslag. We behandelen time management, concentratie, gezondheid en routines die studiesucces aantoonbaar vergroten. Je bouwt een persoonlijk actieplan met meetbare gewoontes en voortgang.',
+          'Werk aan studie- en werkhouding met growth mindset, timemanagement en reflectie. Je maakt een persoonlijk actieplan met meetbare gewoontes.',
         location: 'Breda',
         period: 'P1',
         studentCredits: 4,
@@ -33,7 +33,7 @@ export class SeedService {
       {
         title: 'Nationale Veiligheid & Crisisbeheersing',
         description:
-          'Maak kennis met het Nederlandse veiligheidsdomein en de basis van rampen- en crisismanagement. Je oefent met scenario’s rond openbare orde, vitale infrastructuur en dreigingsinschatting. We koppelen theorie aan praktijk met casussen (bijv. overstromingen, cyberincidenten) en aandacht voor bestuurlijke afwegingen.',
+          'Introductie in het veiligheidsdomein en crisismanagement met praktijkcasussen. Je oefent scenario’s rond openbare orde, vitale infrastructuur en dreiging.',
         location: 'Tilburg',
         period: 'P2',
         studentCredits: 6,
@@ -45,7 +45,7 @@ export class SeedService {
       {
         title: 'Meester in Crisis: Leiderschap in Noodsituaties',
         description:
-          'Ontwikkel daadkrachtig leiderschap onder druk. Je leert besluitvorming onder onzekerheid, heldere communicatie, rolverdeling in crisisteams en samenwerken met hulpdiensten. Realistische simulaties en rollenspellen helpen je om richting te geven, prioriteiten te stellen en verantwoordelijkheid te nemen in hectische situaties.',
+          'Ontwikkel leiderschap onder druk met besluitvorming, communicatie en teamwork in crisisteams. Realistische simulaties en rollenspellen staan centraal.',
         location: 'Rotterdam',
         period: 'P3',
         studentCredits: 5,
@@ -57,7 +57,7 @@ export class SeedService {
       {
         title: 'Design Thinking & Service Design',
         description:
-          'Leer gebruikersproblemen diepgaand te begrijpen en waardevolle diensten te ontwerpen. Je past empathisch onderzoek, journey mapping, ideation en prototyping toe. Je test meerdere iteraties met echte gebruikers en leert beslissingen te onderbouwen met kwalitatieve en kwantitatieve inzichten.',
+          'Leer via empathisch onderzoek en prototyping waardevolle diensten ontwerpen. Je test iteratief met gebruikers en onderbouwt keuzes met inzichten.',
         location: 'Den Bosch',
         period: 'P2',
         studentCredits: 5,
@@ -69,7 +69,7 @@ export class SeedService {
       {
         title: 'Duurzame Bedrijfsvoering & Circulariteit',
         description:
-          'Ontdek hoe organisaties waarde creëren met duurzaamheid als strategische kern. Onderwerpen: circular business models, impactmeting (ESG), ketensamenwerking en veranderkunde. Je werkt aan een verbeterplan voor een echte of gesimuleerde organisatie en rekent door wat de impact is op mens, milieu en resultaat.',
+          'Verken duurzame strategie, circulariteit en impactmeting (ESG). Je maakt een verbeterplan en rekent de impact door op mens, milieu en resultaat.',
         location: 'Breda',
         period: 'P3',
         studentCredits: 6,
@@ -81,7 +81,7 @@ export class SeedService {
       {
         title: 'Data Literacy & Evidence-based Decision Making',
         description:
-          'Vergroot je datavaardigheden zonder te programmeren. Je leert datasets kritisch lezen, basisstatistiek toepassen, visualisaties maken en conclusies verantwoord te communiceren. We gebruiken toegankelijke tools en richten ons op betrouwbare besluitvorming binnen projecten en organisaties.',
+          'Vergroot datavaardigheden zonder te programmeren: kritisch lezen, basisstatistiek, visualisaties en heldere communicatie voor betere besluitvorming.',
         location: 'Eindhoven',
         period: 'P1',
         studentCredits: 5,
@@ -93,7 +93,7 @@ export class SeedService {
       {
         title: 'Digitale Ethiek, Privacy & AI Impact',
         description:
-          'Verdiep je in ethische vraagstukken rondom data, algoritmen en AI. Je bespreekt privacywetgeving (o.a. AVG), bias en transparantie, en ontwikkelt een ethisch kader voor product- en beleidsbeslissingen. Casussen uit zorg, overheid en bedrijfsleven maken de maatschappelijke impact concreet.',
+          'Verdiep je in ethiek rond data, algoritmen en AI: AVG, bias en transparantie. Je ontwikkelt een ethisch kader met praktijkcasussen.',
         location: 'Den Bosch',
         period: 'P4',
         studentCredits: 5,
@@ -105,7 +105,7 @@ export class SeedService {
       {
         title: 'Interculturele Samenwerking & International Project Skills',
         description:
-          'Werk effectief samen in internationale teams. Je leert communiceren over cultuurgrenzen heen, verwachtingen managen, online samenwerken en conflicten constructief oplossen. In een project met een partnerinstelling ontwikkel je een professioneel portfolio met reflecties en peer feedback.',
+          'Samenwerken in internationale teams: interculturele communicatie, verwachtingen managen en conflicten oplossen. Je bouwt een professioneel portfolio.',
         location: 'Rotterdam',
         period: 'P2',
         studentCredits: 4,
@@ -117,7 +117,7 @@ export class SeedService {
       {
         title: 'UX Research & Usability Testing',
         description:
-          'Leer de complete UX-onderzoeks-cyclus: probleemdefinitie, hypothesen, gebruikersonderzoek, testopzet, dataverzameling en rapportage. Je vertaalt inzichten naar concrete verbeteringen voor producten of diensten en presenteert bevindingen overtuigend aan stakeholders.',
+          'Doorloop de UX-onderzoeks­cyclus: probleem, hypothesen, onderzoek en testen. Vertaal inzichten naar concrete verbeteringen en presenteer aan stakeholders.',
         location: 'Tilburg',
         period: 'P4',
         studentCredits: 5,
