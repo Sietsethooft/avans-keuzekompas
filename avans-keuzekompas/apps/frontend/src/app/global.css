@@ -43,3 +43,17 @@ header {
   color: #fff !important;
 }
 
+.avans-color {
+  color: #c00 !important;
+}
+
+.avans-background-btn,
+.avans-background{
+  background-color: #c00 !important;
+  color: #fff !important;
+}
+
+.avans-background-btn:hover {
+  background-color: #a00 !important;
+  color: #fff !important;
+}
