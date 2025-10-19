@@ -5,5 +5,5 @@ export abstract class ModuleRepository {
     abstract getById(id: string): Promise<Module | null>;
     abstract deleteById(id: string): Promise<void>;
     abstract findOne(criteria: Partial<Module>): Promise<Module | null>;
-    abstract updateById(id: string, updateData: Partial<Module>): Promise<Module>;
+    abstract updateById(id: string, updateData: Partial<Module>): Promise<Module | null>;
 }

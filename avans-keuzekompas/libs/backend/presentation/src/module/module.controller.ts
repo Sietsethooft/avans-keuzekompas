@@ -1,8 +1,9 @@
-import { Controller, Get, Put, Logger, Param, UseGuards, Req, Delete } from '@nestjs/common';
+import { Body, Controller, Get, Put, Logger, Param, UseGuards, Req, Delete } from '@nestjs/common';
 import { ModuleService } from '@avans-keuzekompas/application';
 import { jsonResponse } from '@avans-keuzekompas/utils';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
 import { OwnerOrAdminGuard } from '../auth/owner-or-admin.guard.js';
+import type { Module as DomainModule } from '@avans-keuzekompas/domain';
 
 @Controller('module')
 export class ModuleController {
@@ -79,15 +80,19 @@ export class ModuleController {
       return jsonResponse(500, errorMessage, null);
     }
   }
-
   @UseGuards(JwtAuthGuard, OwnerOrAdminGuard)
   @Put(':id')
-  async updateModuleById(@Param('id') id: string) {
+  async updateModuleById(
+    @Param('id') id: string,
+    @Body() update: Partial<DomainModule>
+  ) {
     Logger.log('Update module by ID attempt: ' + id);
     try {
-      // eslint-disable-next-line prefer-rest-params
-      const update = (arguments.length > 1 && typeof arguments[1] === 'object') ? arguments[1] : undefined;
       const updatedModule = await this.moduleService.updateModuleById(id, update);
+      if (!updatedModule) {
+        Logger.log('Update module failed: Module not found');
+        return jsonResponse(404, 'Module not found', null);
+      }
       Logger.log('Update module successful for: ' + id);
       return jsonResponse(200, 'Module updated successfully', updatedModule);
     } catch (err: unknown) {

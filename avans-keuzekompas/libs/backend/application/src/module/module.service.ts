@@ -55,12 +55,25 @@ export class ModuleService {
   }
 
   async updateModuleById(id: string, update: Partial<Module>): Promise<Module | null> {
-    if (update.title && update.location) {
-      const existing = await this.moduleRepository.findOne({ title: update.title, location: update.location });
-      if (existing && String(existing.id) !== String(id)) {
+    const current = await this.moduleRepository.getById(id);
+    if (!current) return null;
+
+    const nextTitle = update.title ?? current.title;
+    const nextLocation = update.location ?? current.location;
+
+    const existing = await this.moduleRepository.findOne({ title: nextTitle, location: nextLocation });
+    if (existing && String(existing.id) !== String(id)) {
+      throw new Error('Module met deze titel en locatie bestaat al');
+    }
+
+    try {
+      return await this.moduleRepository.updateById(id, update);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (e: any) {
+      if (e && (e.code === 11000 || e?.name === 'MongoServerError')) {
         throw new Error('Module met deze titel en locatie bestaat al');
       }
+      throw e;
     }
-    return this.moduleRepository.updateById(id, update);
   }
 }
