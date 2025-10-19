@@ -41,7 +41,8 @@ export default function ElectiveDetailPage() {
   const id = params?.id;
   const router = useRouter();
 
-  const [mod, setMod] = useState<Module | null>(null);
+  // Tri-state: undefined => nog aan het laden, null => niet gevonden, Module => geladen
+  const [mod, setMod] = useState<Module | null | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
@@ -85,6 +86,7 @@ export default function ElectiveDetailPage() {
       try {
         setLoading(true);
         setError(null);
+        setMod(undefined);
         const url = `${process.env.NEXT_PUBLIC_API_URL}/api/module/${encodeURIComponent(String(id))}`;
         const payload = await fetchJson<Module>(url, {
           method: 'GET',
@@ -253,13 +255,10 @@ export default function ElectiveDetailPage() {
     }
   };
 
-  if (loading) {
+  if (loading || typeof mod === 'undefined') {
     return (
-      <div className="container my-4">
-        <div className="d-flex align-items-center gap-2">
-          <div className="spinner-border" role="status" aria-hidden="true" />
-          <span>Bezig met laden…</span>
-        </div>
+      <div className="d-flex justify-content-center align-items-center py-5">
+        <div className="spinner-border text-danger" role="status" aria-label="laden" />
       </div>
     );
   }
@@ -270,7 +269,13 @@ export default function ElectiveDetailPage() {
       </div>
     );
   }
-  if (!mod) return <div className="container my-4">Module niet gevonden.</div>;
+  if (!loading && mod === null) {
+    return <div className="container my-4">Module niet gevonden.</div>;
+  }
+
+  if (!mod) {
+    return null;
+  }
 
   const favBtnClass = `btn ${isFavorite ? styles.avansFavoBtn : 'btn-outline-secondary'} ${styles.avansBtn} d-inline-flex align-items-center`;
   return (
