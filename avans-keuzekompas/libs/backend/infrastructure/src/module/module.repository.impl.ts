@@ -14,4 +14,16 @@ export class MongooseModuleRepository {
   async getById(id: string): Promise<Module | null> {
     return this.moduleModel.findById(id).exec();
   }
+
+  async deleteById(id: string): Promise<void> {
+    await this.moduleModel.findByIdAndDelete(id).exec();
+  }
+
+  async findOne(criteria: Record<string, unknown>): Promise<Module | null> {
+    return this.moduleModel.findOne(criteria).exec();
+  }
+
+  async updateById(id: string, updateData: Partial<Module>): Promise<Module | null> {
+    return this.moduleModel.findByIdAndUpdate(id, updateData, { new: true }).exec();
+  }
 }

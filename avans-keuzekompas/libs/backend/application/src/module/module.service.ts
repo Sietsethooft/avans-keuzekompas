@@ -6,20 +6,20 @@ import { User } from '@avans-keuzekompas/domain';
 
 @Injectable()
 export class ModuleService {
-    constructor(
-        private readonly moduleRepository: ModuleRepository,
-        private readonly userRepository: UserRepository,
-    ) {}
+  constructor(
+      private readonly moduleRepository: ModuleRepository,
+      private readonly userRepository: UserRepository,
+  ) {}
 
-    async getAllModules(): Promise<Module[]> {
-        return this.moduleRepository.getAll();
-    }
+  async getAllModules(): Promise<Module[]> {
+      return this.moduleRepository.getAll();
+  }
 
-    async getModuleById(id: string): Promise<Module | null> {
-        return this.moduleRepository.getById(id);
-    }
-    
-    async toggleFavoriteForUser(
+  async getModuleById(id: string): Promise<Module | null> {
+      return this.moduleRepository.getById(id);
+  }
+  
+  async toggleFavoriteForUser(
     moduleId: string,
     userId: string
   ): Promise<{ isFavorite: boolean; favorites: string[] }> {
@@ -48,5 +48,19 @@ export class ModuleService {
       isFavorite,
       favorites: (updated?.favorites ?? current).map(String),
     };
+  }
+
+  async deleteModuleById(id: string): Promise<void> {
+    await this.moduleRepository.deleteById(id);
+  }
+
+  async updateModuleById(id: string, update: Partial<Module>): Promise<Module | null> {
+    if (update.title && update.location) {
+      const existing = await this.moduleRepository.findOne({ title: update.title, location: update.location });
+      if (existing && String(existing.id) !== String(id)) {
+        throw new Error('Module met deze titel en locatie bestaat al');
+      }
+    }
+    return this.moduleRepository.updateById(id, update);
   }
 }
