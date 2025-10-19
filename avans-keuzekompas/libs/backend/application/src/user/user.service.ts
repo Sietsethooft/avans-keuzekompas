@@ -17,18 +17,21 @@ export class UserService {
 
   async updateUserById(
     id: string,
-    update: Partial<{ firstName: string; lastName: string; email: string; studentNumber: string; favorites: string[]; password: string }>
-  ): Promise<User | null> {
+    update: Partial<{ firstName: string; lastName: string; email: string; studentNumber: string; favorites: string[]; password: string }> 
+  ): Promise<User | null> { 
+    // Validate email uniqueness
     if (update.email) {
       const existing = await this.userRepository.findByEmail(update.email);
       if (existing && existing.id !== id) {
         throw new Error('Email adres wordt al gebruikt');
       }
     }
+    // Hash password if being updated
     if (update.password) {
       const saltRounds = 10;
       update.password = await bcrypt.hash(update.password, saltRounds);
     }
+    // Validate student number uniqueness
     if (update.studentNumber) {
       const existing = await this.userRepository.findByStudentNumber(update.studentNumber);
       if (existing && existing.id !== id) {

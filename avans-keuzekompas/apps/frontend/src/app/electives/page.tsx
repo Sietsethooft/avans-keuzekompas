@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
@@ -5,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import styles from './electives.module.css';
 import type { Module as ModuleItem } from "@avans-keuzekompas/types";
 
-// Kleine helper om JSON te fetchen (ondersteunt jouw jsonResponse envelope)
+// Fetch helper that unwraps Json envelopes if needed
 async function fetchJson<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
   const res = await fetch(input, init);
   const data = await res.json().catch(() => null);
@@ -22,6 +24,7 @@ export default function ElectivesPage() {
   const [modules, setModules] = useState<ModuleItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
   // UI state
   const [search, setSearch] = useState('');
@@ -38,6 +41,7 @@ export default function ElectivesPage() {
       return;
     }
 
+    // Fetch modules from API
     const fetchModules = async () => {
       try {
         setLoading(true);
@@ -52,12 +56,14 @@ export default function ElectivesPage() {
         });
 
         const data = await res.json().catch(() => null);
+        // Validate response
         if (!res.ok || !data || data.status !== 200 || !Array.isArray(data.data)) {
           setError(data?.message || 'Kon modules niet ophalen.');
           setLoading(false);
           return;
         }
 
+        // Map to ModuleItem[]
         const mapped: ModuleItem[] = data.data.map((m: any) => ({
           id: m._id || m.id,
           title: m.title,
@@ -82,11 +88,55 @@ export default function ElectivesPage() {
     fetchModules();
   }, [router]);
 
-  // Favorieten inladen uit API profiel
+  // Admin detection via JWT
+  type JwtPayload = { sub: string; role?: string; exp?: number; iat?: number };
+  function decodeJwt<T>(token: string): T | null {
+    try {
+      const base64Url = token.split('.')[1];
+      if (!base64Url) return null;
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload) as T;
+    } catch {
+      return null;
+    }
+  }
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // Initial check + listen for changes
+    const setAdminFromToken = () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setIsAdmin(false);
+        return;
+      }
+      const payload = decodeJwt<JwtPayload>(token);
+      const isExpired = payload?.exp ? Date.now() / 1000 >= payload.exp : false;
+      setIsAdmin(!isExpired && payload?.role === 'admin');
+    };
+
+    setAdminFromToken();
+
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'token') setAdminFromToken();
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  // Loading favorites from API
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
     if (!token) return;
 
+    // Fetch user profile
     let cancelled = false;
     (async () => {
       try {
@@ -102,7 +152,7 @@ export default function ElectivesPage() {
           setFavorites(new Set(me.favorites.map(String)));
         }
       } catch {
-        // optioneel: fallback op lokale cache, hier overslaan
+        // noop
       }
     })();
 
@@ -134,7 +184,7 @@ export default function ElectivesPage() {
     });
   }, [modules, search, period, location, language]);
 
-  // Toggle via API (optimistisch)
+  // Toggle via API
   const toggleFavorite = async (id: string) => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
     if (!token) {
@@ -142,13 +192,14 @@ export default function ElectivesPage() {
       return;
     }
 
-    // Optimistisch updaten
+    // Update local state optimistically
     setFavorites((prev) => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
 
+    // API call favorite toggle
     try {
       const url = `${process.env.NEXT_PUBLIC_API_URL}/api/module/favorite/${encodeURIComponent(String(id))}`;
       const result = await fetchJson<{ isFavorite?: boolean; favorites?: string[] }>(url, {
@@ -176,7 +227,7 @@ export default function ElectivesPage() {
         });
       }
     } catch (e: any) {
-      // Revert bij fout
+      // Revert on error
       setFavorites((prev) => {
         const next = new Set(prev);
         next.has(id) ? next.delete(id) : next.add(id);
@@ -186,10 +237,12 @@ export default function ElectivesPage() {
     }
   };
 
+  // Navigation
   const onMoreInfo = (id: string) => {
     router.push(`/electives/${id}`);
   };
 
+  // Loading/rendering
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center py-5">
@@ -208,7 +261,7 @@ export default function ElectivesPage() {
 
   return (
     <div className="container py-3">
-      <div className="d-flex flex-column flex-lg-row gap-3 mb-4">
+      <div className="d-flex flex-column flex-lg-row gap-3 mb-4 align-items-stretch align-items-lg-end">
         {/* Search */}
         <div className="flex-grow-1">
           <label htmlFor="search" className="form-label fw-semibold">
@@ -272,6 +325,21 @@ export default function ElectivesPage() {
             <option value="EN">Engels (EN)</option>
           </select>
         </div>
+
+        {isAdmin && (
+          <div style={{ minWidth: 220 }} className="d-grid">
+            {/* Spacer label to align bottom on lg, hidden on small */}
+            <label className="form-label fw-semibold d-none d-lg-block">&nbsp;</label>
+            <button
+              type="button"
+              className={`btn btn-danger ${styles.avansBtn}`}
+              onClick={() => router.push('/electives/create')}
+            >
+              <i className="bi bi-plus-lg me-2" />
+              Creëer module
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Result header */}

@@ -4,3 +4,9 @@
   color: #fff !important;
   border-color: #c00 !important;
 }
+
+.editBtn{
+  --bs-btn-bg: transparent;
+  --bs-btn-color: #6f42c1;       
+  --bs-btn-border-color: #6f42c1; 
+}

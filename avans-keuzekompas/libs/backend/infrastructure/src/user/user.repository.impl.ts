@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './user.schema.js';
 
@@ -25,5 +25,13 @@ export class MongooseUserRepository {
 
   async findByStudentNumber(studentNumber: string): Promise<User | null> {
     return this.userModel.findOne({ studentNumber }).exec();
+  }
+
+  async removeFavoriteFromAllUsers(moduleId: string): Promise<void> {
+    const id = new Types.ObjectId(moduleId);
+    await this.userModel.updateMany(
+      { favorites: id },
+      { $pull: { favorites: id } } // Pull the moduleId from the favorites array
+    ).exec();
   }
 }

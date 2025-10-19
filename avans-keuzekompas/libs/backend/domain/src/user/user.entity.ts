@@ -1,1 +1,1 @@
-export type { User } from '@avans-keuzekompas/types';
+export type { User } from '@avans-keuzekompas/types'; // Re-exporting User type from shared types package

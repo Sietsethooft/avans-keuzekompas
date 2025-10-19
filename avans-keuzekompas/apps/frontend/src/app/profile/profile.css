@@ -52,3 +52,8 @@
 @media (min-width: 992px){
   .position-lg-sticky { position: sticky; }
 }
+.avansBtn:hover{
+  background: #c00 !important;
+  color: #fff !important;
+  border-color: #c00 !important;
+}

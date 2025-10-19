@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Controller, Get, Logger, Param, Delete, UseGuards, Put, Body, Req } from '@nestjs/common';
 import { UserService } from '@avans-keuzekompas/application';
 import { jsonResponse } from '@avans-keuzekompas/utils';
@@ -10,7 +11,6 @@ export class UserController {
 
     @Get('profile')
     @UseGuards(JwtAuthGuard)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async getProfile(@Req() req: any) {
       const userId = req?.user?.sub ?? req?.user?.id ?? req?.user?._id ?? req?.user?.userId;
       Logger.log('Get profile attempt: ' + userId);

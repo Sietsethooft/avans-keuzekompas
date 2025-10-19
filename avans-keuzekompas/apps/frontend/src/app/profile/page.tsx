@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -34,6 +36,7 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [favoriteModules, setFavoriteModules] = useState<FavoriteModule[]>([]);
 
+  // Remove account
   const handleDeleteAccount = async () => {
     const result = await Swal.fire({
       title: 'Weet je zeker dat je je account wilt verwijderen?',
@@ -47,7 +50,8 @@ export default function ProfilePage() {
     });
 
     if (!result.isConfirmed || !user) return;
-
+    
+    // API call to delete account
     try {
       const url = `${process.env.NEXT_PUBLIC_API_URL}/api/user/${user.id}`;
       const token = localStorage.getItem('token');
@@ -59,6 +63,7 @@ export default function ProfilePage() {
         },
       });
 
+      // Checkup alerts
       if (res.ok) {
         await Swal.fire({
           title: 'Account verwijderd',
@@ -109,6 +114,7 @@ export default function ProfilePage() {
       return;
     }
 
+    // API call to fetch the user
     const fetchUser = async () => {
       const url = `${process.env.NEXT_PUBLIC_API_URL}/api/user/profile`;
       try {
@@ -134,6 +140,7 @@ export default function ProfilePage() {
           return;
         }
 
+        // Map API user to frontend User type
         const apiUser = data.data;
         const mappedUser: User = {
           id: apiUser._id || apiUser.id || apiUser.userId,
@@ -158,7 +165,7 @@ export default function ProfilePage() {
     fetchUser();
   }, [router]);
 
-  // Haal module-titels op
+  // Get titles of favorite modules
   useEffect(() => {
     const fetchTitles = async () => {
       const token = localStorage.getItem("token");
@@ -194,7 +201,7 @@ export default function ProfilePage() {
     fetchTitles();
   }, [user]);
 
-  // Favoriet verwijderen
+  // Remove favorite(s)
   const handleRemoveFavorite = async (id: string) => {
     const token = localStorage.getItem("token");
     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/module/favorite/${id}`, {
@@ -210,6 +217,7 @@ export default function ProfilePage() {
     );
   };
 
+  // Loading state
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">
@@ -279,8 +287,8 @@ export default function ProfilePage() {
               </div>
               <div className="card-body">
                 <div className="d-grid gap-2">
-                  <button className="btn btn-danger-soft w-100" onClick={handleDeleteAccount}>
-                    <i className="bi bi-trash3 me-2"></i> Account verwijderen
+                  <button className="btn btn-danger-soft w-100 avansBtn" onClick={handleDeleteAccount}>
+                    <i className="bi bi-trash3 me-2 avansBtn"></i> Account verwijderen
                   </button>
                   <button
                     className="btn btn-outline-secondary w-100"
@@ -347,7 +355,7 @@ export default function ProfilePage() {
                     Voeg modules toe aan je favorieten om ze hier snel terug te vinden.
                   </p>
                   <button
-                    className="btn btn-outline-danger btn-sm"
+                    className="btn btn-outline-danger btn-sm avansBtn"
                     onClick={() => router.push("/electives")}
                   >
                     <i className="bi bi-search me-1"></i> Ontdek modules
