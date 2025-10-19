@@ -170,7 +170,6 @@ const RegisterPage: React.FC = () => {
                     </div>
                     {error && <div className="alert alert-danger mb-3">{error}</div>}
                     <div className="d-flex justify-content-between">
-                        <button type="submit" className="btn btn-primary">Registreren</button>
                         <button
                             type="button"
                             className="btn btn-outline-secondary"
@@ -178,6 +177,7 @@ const RegisterPage: React.FC = () => {
                         >
                             Inloggen
                         </button>
+                        <button type="submit" className="btn btn-primary">Registreren</button>
                     </div>
                 </form>
             </div>
